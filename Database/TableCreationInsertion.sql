@@ -67,3 +67,4 @@ VALUES
 ('driver1','driver123','DRIVER');
 
 COMMIT;
+
