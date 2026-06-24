@@ -1,9 +1,56 @@
+const toggleRegister = document.getElementById("toggle-register");
+const toggleUpdate = document.getElementById("toggle-update");
+const toggleDelete = document.getElementById("toggle-delete");
+
+const fetchId = document.getElementById("fetch-id");
+
+const registerBtn = document.getElementById("register-btn");
+const updateBtn = document.getElementById("update-btn");
+const deleteBtn = document.getElementById("delete-btn");
+
+
+toggleRegister.addEventListener("click", () => {
+  toggleRegister.classList.add("active");
+  toggleUpdate.classList.remove("active");
+  toggleDelete.classList.remove("active");
+
+  fetchId.classList.add("d-none");
+  registerBtn.classList.remove("d-none");
+  updateBtn.classList.add("d-none");
+  deleteBtn.classList.add("d-none");
+});
+
+toggleUpdate.addEventListener("click", () => {
+  toggleRegister.classList.remove("active");
+  toggleUpdate.classList.add("active");
+  toggleDelete.classList.remove("active");
+
+  fetchId.classList.remove("d-none");
+
+  registerBtn.classList.add("d-none");
+  updateBtn.classList.remove("d-none");
+  deleteBtn.classList.add("d-none");
+});
+
+toggleDelete.addEventListener("click", () => {
+  toggleRegister.classList.remove("active");
+  toggleUpdate.classList.remove("active");
+  toggleDelete.classList.add("active");
+
+  fetchId.classList.remove("d-none");
+  registerBtn.classList.add("d-none");
+  updateBtn.classList.add("d-none");
+  deleteBtn.classList.remove("d-none");
+});
+
+
+
 const customerId = document.getElementById("id");
 const customerName = document.getElementById("name");
 const customerAddress = document.getElementById("address");
 const customerPhone = document.getElementById("phone");
 
-document.getElementById("fetch").addEventListener("click", async () => {
+document.getElementById("fetch-btn").addEventListener("click", async () => {
     const id = customerId.value.trim();
     
     if (!id) {
@@ -29,7 +76,7 @@ document.getElementById("fetch").addEventListener("click", async () => {
     }
 });
 
-document.getElementById("register").addEventListener("click", async () => {
+document.getElementById("register-btn").addEventListener("click", async () => {
 
     try {
         const response = await fetch ("http://localhost:3000/customer", {
@@ -56,7 +103,7 @@ document.getElementById("register").addEventListener("click", async () => {
     }
 });
 
-document.getElementById("update").addEventListener("click", async () => {
+document.getElementById("update-btn").addEventListener("click", async () => {
 
     const id = customerId.value.trim();
 
@@ -86,7 +133,7 @@ document.getElementById("update").addEventListener("click", async () => {
     }
 });
 
-document.getElementById("delete").addEventListener("click", async () => {
+document.getElementById("delete-btn").addEventListener("click", async () => {
 
     const id = customerId.value.trim();
 
@@ -108,7 +155,7 @@ document.getElementById("delete").addEventListener("click", async () => {
     }
 });
 
-document.getElementById("clear").addEventListener("click", async () => {
+document.getElementById("clear-btn").addEventListener("click", async () => {
     customerId.value = "";
     customerName.value = "";
     customerAddress.value = "";

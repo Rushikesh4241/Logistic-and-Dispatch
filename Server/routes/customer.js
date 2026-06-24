@@ -6,10 +6,13 @@ const router = express.Router();
 const getConnection = require("../db");
 
 router.post("/", async (req, res) => {
+
+    let connection;
+
     try {
         const {customerName, customerAddress, customerPhone} = req.body;
 
-        const connection = await getConnection();
+        connection = await getConnection();
 
         await connection.execute(
             `INSERT INTO CUSTOMER(customerName, Address, Phone)
@@ -38,8 +41,11 @@ router.post("/", async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
+
+    let connection;
+
     try {
-        const connection = await getConnection();
+        connection = await getConnection();
 
         const result = await connection.execute(
             `SELECT CUSTOMERNAME, ADDRESS, PHONE FROM CUSTOMER WHERE CUSTOMERID = :id`,
@@ -77,9 +83,12 @@ router.get("/:id", async (req, res) => {
 router.put("/:id", async (req, res) => {
 
     const {customerName, customerAddress, customerPhone} = req.body;
-    const connection = await getConnection();
+    
+    let connection;
 
     try {
+        connection = await getConnection();
+
         const result = await connection.execute(
             `UPDATE CUSTOMER SET CUSTOMERNAME = :1, ADDRESS = :2, PHONE = :3 WHERE CUSTOMERID = :4`,
             [customerName, customerAddress, customerPhone, req.params.id],
@@ -106,8 +115,11 @@ router.put("/:id", async (req, res) => {
 });
 
 router.delete("/:id", async(req,res) => {
+
+    let connection;
+
     try {
-        const connection = await getConnection();
+        connection = await getConnection();
 
         await connection.execute(
             `DELETE FROM CUSTOMER WHERE CUSTOMERID = :1`,

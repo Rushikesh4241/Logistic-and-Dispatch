@@ -1,5 +1,6 @@
 const toggleLogin = document.getElementById("login");
 const toggleRegister = document.getElementById("register");
+
 const formLogin = document.getElementById("form-login");
 const formRegister = document.getElementById("form-register");
 
