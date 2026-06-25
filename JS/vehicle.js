@@ -1,177 +1,163 @@
-const vehicleId = document.getElementById("vehicle-id");
-const vehicleNumber = document.getElementById("vehicle-number");
-const vehicleType = document.getElementById("vehicle-type");
-const capacity = document.getElementById("capacity");
+const toggleRegister = document.getElementById("toggle-register");
+const toggleUpdate = document.getElementById("toggle-update");
+const toggleDelete = document.getElementById("toggle-delete");
+
+const fetchId = document.getElementById("fetch-id");
+
+const registerBtn = document.getElementById("register-btn");
+const updateBtn = document.getElementById("update-btn");
+const deleteBtn = document.getElementById("delete-btn");
 
 
-// FETCH VEHICLE
+toggleRegister.addEventListener("click", () => {
+  toggleRegister.classList.add("active");
+  toggleUpdate.classList.remove("active");
+  toggleDelete.classList.remove("active");
 
-document.getElementById("fetch-btn").addEventListener("click", async () => {
+  fetchId.classList.add("d-none");
+  registerBtn.classList.remove("d-none");
+  updateBtn.classList.add("d-none");
+  deleteBtn.classList.add("d-none");
+});
 
-    const id = vehicleId.value.trim();
+toggleUpdate.addEventListener("click", () => {
+  toggleRegister.classList.remove("active");
+  toggleUpdate.classList.add("active");
+  toggleDelete.classList.remove("active");
 
-    if (!id) {
-        alert("Please enter Vehicle ID");
-        return;
-    }
+  fetchId.classList.remove("d-none");
 
-    try {
+  registerBtn.classList.add("d-none");
+  updateBtn.classList.remove("d-none");
+  deleteBtn.classList.add("d-none");
+});
 
-        const response = await fetch(
-            `http://localhost:3000/vehicle/${id}`
-        );
+toggleDelete.addEventListener("click", () => {
+  toggleRegister.classList.remove("active");
+  toggleUpdate.classList.remove("active");
+  toggleDelete.classList.add("active");
 
-        if (!response.ok) {
-            throw new Error("Vehicle Not Found");
-        }
-
-        const data = await response.json();
-
-        vehicleNumber.value = data.vehicleNumber;
-        vehicleType.value = data.vehicleType;
-        capacity.value = data.capacity;
-
-    } catch (err) {
-
-        console.error(err);
-        alert("Vehicle Not Found");
-
-    }
-
+  fetchId.classList.remove("d-none");
+  registerBtn.classList.add("d-none");
+  updateBtn.classList.add("d-none");
+  deleteBtn.classList.remove("d-none");
 });
 
 
-// ADD VEHICLE
 
-document.getElementById("save-btn").addEventListener("click", async () => {
+const vehicleId = document.getElementById("vehicle-id");
+const vehicleNumber = document.getElementById("vehicle-number");
+const vehicleType = document.getElementById("vehicleType");
+const capacity = document.getElementById("capacity");
+
+document.getElementById("fetch-btn").addEventListener("click", async () => {
+    const id = vehicleId.value.trim();
+    
+    if (!id) {
+        alert("Enter Vehicle ID !");
+        return
+    }
 
     try {
+        const response = await fetch (`http://localhost:3000/vehicle/${id}`);
 
-        const response = await fetch(
-            "http://localhost:3000/vehicle",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    vehicleNumber: vehicleNumber.value,
-                    vehicleType: vehicleType.value,
-                    capacity: capacity.value
-                })
-            }
-        );
+        if (!response.ok) {
+            throw new Error("Vehicle not found");
+        }
+
+        const data = await response.json();
+        vehicleNumber.value = data.vehicleNumber;
+        vehicleType.value = data.vehicleType;
+        capacity.value = data.capacity;
+    }
+    catch (err){
+        console.error(err);
+        alert("Vehicle not found");
+    }
+});
+
+document.getElementById("register-btn").addEventListener("click", async () => {
+
+    try {
+        const response = await fetch ("http://localhost:3000/vehicle", {
+            method: "POST",
+            headers: {
+                "Content-type":
+                "application/json"
+            },
+            body: JSON.stringify({
+                vehicleNumber: vehicleNumber.value.trim(),
+                vehicleType: vehicleType.value.trim(),
+                capacity: capacity.value.trim()
+            })
+
+        });
 
         const data = await response.json();
 
         alert(data.message);
-
-    } catch (err) {
-
-        console.error(err);
-        alert("Unable to Add Vehicle");
-
     }
-
+    catch(err) {
+        console.error(err);
+        alert("Unable to add Vehicle");
+    }
 });
-
-
-// UPDATE VEHICLE
 
 document.getElementById("update-btn").addEventListener("click", async () => {
 
     const id = vehicleId.value.trim();
 
     if (!id) {
-        alert("Please enter Vehicle ID");
-        return;
+        alert("Enter valid Vehicle ID to Update")
     }
 
     try {
-
-        const response = await fetch(
-            `http://localhost:3000/vehicle/${id}`,
-            {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    vehicleNumber: vehicleNumber.value,
-                    vehicleType: vehicleType.value,
-                    capacity: capacity.value
-                })
-            }
-        );
-
+        const response = await fetch (`http://localhost:3000/vehicle/${id}`, {
+            method: "PUT",
+            headers: {
+                "Content-type": "application/json"
+            },
+            body: JSON.stringify({
+                vehicleNumber: vehicleNumber.value,
+                vehicleType: vehicleType.value,
+                capacity: capacity.value
+            })
+        });
         const data = await response.json();
 
         alert(data.message);
-
-    } catch (err) {
-
-        console.error(err);
-        alert("Update Failed");
-
     }
-
+    catch(err) {
+        console.error(err);
+        alert("Unable to add Vehicle");
+    }
 });
-
-
-// DELETE VEHICLE
 
 document.getElementById("delete-btn").addEventListener("click", async () => {
 
     const id = vehicleId.value.trim();
 
     if (!id) {
-        alert("Please enter Vehicle ID");
-        return;
-    }
-
-    const confirmDelete = confirm(
-        "Are you sure you want to delete this vehicle?"
-    );
-
-    if (!confirmDelete) {
-        return;
+        alert("Enter valid Vehicle ID to Update")
     }
 
     try {
-
-        const response = await fetch(
-            `http://localhost:3000/vehicle/${id}`,
-            {
-                method: "DELETE"
-            }
-        );
+        const response = await fetch (`http://localhost:3000/vehicle/${id}`, {
+            method: "DELETE",
+        });
 
         const data = await response.json();
-
         alert(data.message);
-
-        clearForm();
-
-    } catch (err) {
-
-        console.error(err);
-        alert("Delete Failed");
-
     }
-
+    catch(err) {
+        console.error(err);
+        alert("Unable to add Vehicle");
+    }
 });
 
-
-// CLEAR FORM
-
-document.getElementById("clear-btn")
-.addEventListener("click", clearForm);
-
-function clearForm() {
-
+document.getElementById("clear-btn").addEventListener("click", async () => {
     vehicleId.value = "";
     vehicleNumber.value = "";
     vehicleType.value = "";
     capacity.value = "";
-
-}
+});
