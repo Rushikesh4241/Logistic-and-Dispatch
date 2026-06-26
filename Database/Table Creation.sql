@@ -101,3 +101,5 @@ CREATE TABLE USERS(
 );
 
 select * from tab;
+
+desc vehicle 

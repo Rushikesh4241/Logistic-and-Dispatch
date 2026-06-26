@@ -68,3 +68,9 @@ VALUES
 
 COMMIT;
 
+drop table vehicle;
+drop table driver;
+drop table customer;
+drop table dispatchorder;
+drop table dispatchassignment;
+drop table delivery;
