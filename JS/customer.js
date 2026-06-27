@@ -1,98 +1,89 @@
-const toggleRegister = document.getElementById("toggle-register");
-const toggleUpdate = document.getElementById("toggle-update");
-
-const fetchId = document.getElementById("fetch-id");
-const prevNext = document.getElementById("prev-next");
-
-const registerBtn = document.getElementById("register-btn");
-const updateBtn = document.getElementById("update-btn");
-
-
-toggleRegister.addEventListener("click", () => {
-    toggleRegister.classList.add("active");
-    toggleUpdate.classList.remove("active");
-
-    fetchId.classList.add("d-none");
-
-    registerBtn.classList.remove("d-none");
-    updateBtn.classList.add("d-none");
-
-    prevNext.classList.add("d-none");
-});
-
-toggleUpdate.addEventListener("click", () => {
-    toggleRegister.classList.remove("active");
-    toggleUpdate.classList.add("active");
-
-    fetchId.classList.remove("d-none");
-
-    registerBtn.classList.add("d-none");
-    updateBtn.classList.remove("d-none");
-
-    prevNext.classList.remove("d-none");
-});
-
 const customerId = document.getElementById("id");
 const customerName = document.getElementById("name");
 const customerAddress = document.getElementById("address");
 const customerPhone = document.getElementById("phone");
 
-document.getElementById("fetch-btn").addEventListener("click", async () => {
+const registerBtn = document.getElementById("register-btn");
+const updateBtn = document.getElementById("update-btn");
+const prevNext = document.getElementById("prev-next");
+
+const API_BASE_URL = "http://localhost:3000/customer";
+
+function toggleFormMode(isUpdateMode) {
+    if (isUpdateMode) {
+        registerBtn.classList.add("d-none");
+        updateBtn.classList.remove("d-none");
+        prevNext.classList.remove("d-none");
+    } else {
+        registerBtn.classList.remove("d-none");
+        updateBtn.classList.add("d-none");
+        prevNext.style.setProperty("display", "none", "important");
+        prevNext.classList.add("d-none");
+    }
+}
+
+
+function clearFields() {
+    customerName.value = "";
+    customerAddress.value = "";
+    customerPhone.value = "";
+}
+
+customerId.addEventListener("input", async () => {
     const id = customerId.value.trim();
 
     if (!id) {
-        Swal.fire({
-            position: "center",
-            icon: "error",
-            title: "Enter Customer ID",
-            showConfirmButton: false,
-            timer: 1500,
-        });
+        clearFields();
+        toggleFormMode(false);
         return;
     }
 
     try {
-        const response = await fetch(`http://localhost:3000/customer/${id}`);
-
+        const response = await fetch(`${API_BASE_URL}/${id}`);
+        
         if (!response.ok) {
-            throw new Error("Customer not found");
+            clearFields();
+            toggleFormMode(false);
+
+            Swal.fire({
+            position: "center",
+            icon: "error",
+            title: "Enter valid Customer ID to Update or view, Leave blank to registerg",
+            showConfirmButton: true
+        });
+
+            return;
         }
 
         const data = await response.json();
-        customerName.value = data.customerName;
-        customerAddress.value = data.customerAddress;
-        customerPhone.value = data.customerPhone;
-    } catch (err) {
-        console.error(err);
+        
+        customerName.value = data.customerName || "";
+        customerAddress.value = data.customerAddress || "";
+        customerPhone.value = data.customerPhone || "";
+        
+        toggleFormMode(true);
 
-        Swal.fire({
-            position: "center",
-            icon: "error",
-            title: "Customer not found",
-            showConfirmButton: false,
-            timer: 1500,
-        });
+    } catch (err) {
+        console.error("Live fetch connection error:", err);
     }
 });
 
-document.getElementById("register-btn").addEventListener("click", async () => {
 
-    if (!customerName.value || !customerAddress.value || !customerPhone.value) {
+registerBtn.addEventListener("click", async () => {
+    if (!customerName.value.trim() || !customerAddress.value.trim() || !customerPhone.value.trim()) {
         Swal.fire({
             position: "center",
             icon: "error",
-            title: "Please fill in all fields",
+            title: "Please fill in all required fields",
             showConfirmButton: true
         });
         return; 
     }
 
     try {
-        const response = await fetch("http://localhost:3000/customer", {
+        const response = await fetch(API_BASE_URL, {
             method: "POST",
-            headers: {
-                "Content-type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 customerName: customerName.value.trim(),
                 customerAddress: customerAddress.value.trim(),
@@ -105,13 +96,17 @@ document.getElementById("register-btn").addEventListener("click", async () => {
         Swal.fire({
             position: "center",
             icon: "success",
-            title: data.message,
+            title: data.message || "Customer Registered Successfully",
             showConfirmButton: false,
             timer: 1500,
         });
+
+        customerId.value = "";
+        clearFields();
+        toggleFormMode(false);
+
     } catch (err) {
         console.error(err);
-        
         Swal.fire({
             position: "center",
             icon: "error",
@@ -122,14 +117,14 @@ document.getElementById("register-btn").addEventListener("click", async () => {
     }
 });
 
-document.getElementById("update-btn").addEventListener("click", async () => {
+updateBtn.addEventListener("click", async () => {
     const id = customerId.value.trim();
 
     if (!id) {
         Swal.fire({
             position: "center",
             icon: "error",
-            title: "Enter valid Customer ID to Update",
+            title: "No valid Customer ID specified for update",
             showConfirmButton: false,
             timer: 1500,
         });
@@ -137,15 +132,13 @@ document.getElementById("update-btn").addEventListener("click", async () => {
     }
 
     try {
-        const response = await fetch(`http://localhost:3000/customer/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/${id}`, {
             method: "PUT",
-            headers: {
-                "Content-type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                customerName: customerName.value,
-                customerAddress: customerAddress.value,
-                customerPhone: customerPhone.value,
+                customerName: customerName.value.trim(),
+                customerAddress: customerAddress.value.trim(),
+                customerPhone: customerPhone.value.trim(),
             }),
         });
         const data = await response.json();
@@ -153,14 +146,13 @@ document.getElementById("update-btn").addEventListener("click", async () => {
         Swal.fire({
             position: "center",
             icon: "success",
-            title: data.message,
+            title: data.message || "Customer Record Updated",
             showConfirmButton: false,
             timer: 1500,
         });
 
     } catch (err) {
         console.error(err);
-
         Swal.fire({
             position: "center",
             icon: "error",
@@ -171,88 +163,69 @@ document.getElementById("update-btn").addEventListener("click", async () => {
     }
 });
 
-
-document.getElementById("clear-btn").addEventListener("click", async () => {
+document.getElementById("clear-btn").addEventListener("click", () => {
     customerId.value = "";
-    customerName.value = "";
-    customerAddress.value = "";
-    customerPhone.value = "";
+    clearFields();
+    toggleFormMode(false);
 });
+
 
 document.getElementById("next-btn").addEventListener("click", async () => {
     let id = customerId.value.trim();
-
-    if (!id || id === "") {
-        id = 0;
-    }
+    if (!id) id = 0;
 
     try {
-        const response = await fetch (`http://localhost:3000/customer/next/${id}`);
+        const response = await fetch(`${API_BASE_URL}/next/${id}`);
 
         if (!response.ok) {
             Swal.fire({
-            position: "center",
-            icon: "success",
-            title: "End of Customers",
-            showConfirmButton: false,
-            timer: 1500,
-        });
-        return;
+                position: "center",
+                icon: "info",
+                title: "End of Customers list reached",
+                showConfirmButton: false,
+                timer: 1500,
+            });
+            return;
         }
 
         const data = await response.json();
         customerId.value = data.customerId;
-        customerName.value = data.customerName;
-        customerAddress.value = data.customerAddress;
-        customerPhone.value = data.customerPhone;
-    }
-    catch (err) {
-        Swal.fire({
-            position: "center",
-            icon: "success",
-            title: "End of Customers",
-            showConfirmButton: false,
-            timer: 1500,
-        });
-        return;
+        customerName.value = data.customerName || "";
+        customerAddress.value = data.customerAddress || "";
+        customerPhone.value = data.customerPhone || "";
+        
+        toggleFormMode(true);
+    } catch (err) {
+        console.error(err);
     }
 });
 
 document.getElementById("previous-btn").addEventListener("click", async () => {
     let id = customerId.value.trim();
-
-    if (!id || id === "") {
-        id = 2;
-    }
+    if (!id) return;
 
     try {
-        const response = await fetch(`http://localhost:3000/customer/previous/${id}`);
+        const response = await fetch(`${API_BASE_URL}/previous/${id}`);
 
-    if (!response.ok) {
-        Swal.fire({
-            position: "center",
-            icon: "success",
-            title: "End of Customers",
-            showConfirmButton: false,
-            timer: 1500,
-        });
-        return;
-    };
+        if (!response.ok) {
+            Swal.fire({
+                position: "center",
+                icon: "info",
+                title: "Reached the beginning of Customer list",
+                showConfirmButton: false,
+                timer: 1500,
+            });
+            return;
+        }
 
-    const data = await response.json();
-    customerId.value = data.customerId;
-    customerName.value = data.customerName;
-    customerAddress.value = data.customerAddress;
-    customerPhone.value = data.customerPhone;
-    }
-    catch (err) {
-        Swal.fire({
-            position: "center",
-            icon: "success",
-            title: "End of Customers",
-            showConfirmButton: false,
-            timer: 1500,
-        })
-        return;
+        const data = await response.json();
+        customerId.value = data.customerId;
+        customerName.value = data.customerName || "";
+        customerAddress.value = data.customerAddress || "";
+        customerPhone.value = data.customerPhone || "";
+        
+        toggleFormMode(true);
+    } catch (err) {
+        console.error(err);
     }
 });

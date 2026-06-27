@@ -2,7 +2,7 @@ body {
   background-color: #f9f9f9;
   font-family: "Varela Round";
 }
-
+/* 
 .login-toggle {
   width: 200px;
   display: flex;
@@ -21,7 +21,7 @@ body {
 }
 .login-toggle .slider:hover:not(.active) {
   background-color: #b8b8b8 !important;
-}
+} */
 
 .main-form {
   height: 90vh;
