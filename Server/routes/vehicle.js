@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const getConnection = require("../db");
 
-// ADD VEHICLE
 router.post("/", async (req, res) => {
   let connection;
 
@@ -34,7 +33,6 @@ router.post("/", async (req, res) => {
   }
 });
 
-// FETCH NEXT VEHICLE
 router.get("/next/:id", async (req, res) => {
   let connection;
 
