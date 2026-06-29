@@ -26,30 +26,27 @@
                         <h4 class="main-text fw-bold text-white px-3 py-1 rounded-3 text-center fs-5">Driver Master Entry</h4>
                     </div>
 
-                    <div class="row login-toggle border rounded-pill p-1 mx-auto mb-4 justify-content-center">
-                        <div class="col p-0"><button type="button" id="toggle-register" class="btn slider rounded-pill w-100 active">Register</button></div>
-                        <div class="col p-0"><button type="button" id="toggle-update" class="btn slider rounded-pill w-100">Update</button></div>
-                    </div>
-
                     <form id="driver-form">
 
-                        <div id="fetch-id" class="d-flex align-items-center text-nowrap gap-3 mb-3 d-none">
-                            <label for="id" class="form-label mb-0" style="width: 100px;">Driver ID: <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="id" style="width: 120px;">
-                            <button type="button" class="btn btn-outline-primary rounded-3" id="fetch-btn">Fetch</button>
+                        <div id="fetch-id" class="d-flex align-items-center text-nowrap gap-3 mb-3">
+                            <label for="id" class="form-label mb-0" style="width: 130px;">Driver ID: <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="driver-id" style="width: 120px;">
+                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" data-bs-toggle="tooltip" title="Enter an existing Driver ID only to update. Leave blank to register a new driver.">i</button>
                         </div>
 
                         <div class="mb-3 d-flex align-items-center text-nowrap gap-3">
-                            <label for="driver-name" class="form-label mb-0" style="width: 100px;">Full Name: <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="driver-name" style="width: 400px; max-width: 100%;">
+                            <label for="driver-name" class="form-label mb-0" style="width: 130px;">Full Name: <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="driver-name" style="width: 350px; max-width: 100%;">
                         </div>
-                        <div class="mb-3 d-flex align-items-start text-nowrap gap-3">
-                            <label for="driver-phone" class="form-label pt-1 mb-0" style="width: 100px;">Phone:</label>
-                            <textarea class="form-control" id="driver-phone" rows="3" style="width: 400px; max-width: 100%;"></textarea>
+
+                        <div class="mb-3 d-flex align-items-center text-nowrap gap-3">
+                            <label for="driver-phone" class="form-label mb-0" style="width: 130px;">Phone: <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="driver-phone" style="width: 180px; max-width: 100%;">
                         </div>
+
                         <div class="mb-4 d-flex align-items-center text-nowrap gap-3">
-                            <label for="license" class="form-label mb-0" style="width: 100px;">License Number: <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="license" style="width: 180px; max-width: 100%;">
+                            <label for="license" class="form-label mb-0" style="width: 130px;">License Number: <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="license" style="width: 350px; max-width: 100%;">
                         </div>
 
                         <div class="mb-3 d-flex justify-content-center mx-auto gap-3 pt-2">
@@ -67,7 +64,8 @@
                                 </button>
                             </div>
 
-                            <button type="button" class="btn btn-outline-dark rounded-3 px-4" id="clear-btn">Clear</button>
+                            <button type="button" class="btn bg-outline-dark bg-dark-subtle text-dark rounded-3 px-4" id="clear-btn">Clear</button>
+                            <a href="admin-dashboard.html" class="btn bg-danger-subtle text-danger border border-danger-subtle rounded-3 px-4">Exit</a>
                         </div>
                     </form>
                 </div>
