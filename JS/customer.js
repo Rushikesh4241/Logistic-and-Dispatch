@@ -48,7 +48,7 @@ customerId.addEventListener("input", async () => {
             Swal.fire({
             position: "center",
             icon: "error",
-            title: "Enter valid Customer ID to Update or view, Leave blank to registerg",
+            title: "Enter valid Customer ID to Update or view, Leave blank to register",
             showConfirmButton: true
         });
 
@@ -169,7 +169,6 @@ document.getElementById("clear-btn").addEventListener("click", () => {
     toggleFormMode(false);
 });
 
-
 document.getElementById("next-btn").addEventListener("click", async () => {
     let id = customerId.value.trim();
     if (!id) id = 0;
@@ -229,3 +228,4 @@ document.getElementById("previous-btn").addEventListener("click", async () => {
         console.error(err);
     }
 });
+

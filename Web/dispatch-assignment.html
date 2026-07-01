@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Dispatch Assignment</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+
+        <link rel="stylesheet" href="../CSS/style.css">
+    </head>
+
+    <body>
+
+        <div class="main-form border rounded-5 p-5 shadow-lg bg-white mx-auto mt-5">
+            <div class="row m-0">
+                <div class="col p-0">
+                    <div class="d-flex justify-content-center mb-2">
+                        <h1 class="main-text fw-bold text-white px-4 py-2 rounded-3 text-center fs-1">Logistic and Dispatch</h1>
+                    </div>
+                    <div class="d-flex justify-content-center mb-5">
+                        <h4 class="main-text fw-bold text-white px-3 py-1 rounded-3 text-center fs-4">Dispatch Assignment Transaction Entry</h4>
+                    </div>
+
+                    <form id="dispatch-assignment-form">
+
+                        <div id="fetch-id" class="d-flex align-items-center text-nowrap gap-2 mb-5">
+                            <label for="assignment-id" class="form-label mb-0" style="width: 130px;">Assignment ID: <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="assignment-id" style="width: 120px;">
+                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" data-bs-toggle="tooltip" title="Enter an existing Assignment ID only to update. Leave blank to Enter new Assignment.">i</button>
+                        </div>
+
+                        <div class="d-flex gap-5 mb-3">
+                            <div class="mb-3 d-flex align-items-center text-nowrap gap-2">
+                                <label for="order-id" class="form-label mb-0" style="width: 130px;">Order ID: <span class="text-danger">*</span></label>
+                                <select class="form-select" id="order-id" style="width: 220px; max-width: 100%;"></select>
+                            </div>
+                            <div class="mb-3 d-flex align-items-center text-nowrap gap-2">
+                                <label for="date-time" class="form-label mb-0" style="width: 130px;">Date Time:</label>
+                                <input type="date" class="form-control" id="date-time" style="width: 200px; max-width: 100%;">
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-5 mb-5">
+                            <div class="mb-4 d-flex align-items-center text-nowrap gap-2">
+                                <label for="driver-id" class="form-label mb-0" style="width: 130px;">Driver ID: <span class="text-danger">*</span></label>
+                                <select class="form-select" id="driver-id" style="width: 220px; max-width: 100%;"></select>
+                            </div>
+
+                            <div class="mb-3 d-flex align-items-center text-nowrap gap-2">
+                                <label for="vehicle-id" class="form-label mb-0" style="width: 130px;">Vehicle ID: <span class="text-danger">*</span></label>
+                                <select class="form-select" id="vehicle-id" style="width: 220px; max-width: 100%;"></select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 d-flex justify-content-center mx-auto gap-3 pt-2">
+                            <button type="button" class="btn btn-primary rounded-3 px-4" id="register-btn">Register</button>
+                            <button type="button" class="btn btn-warning rounded-3 px-4 d-none" id="update-btn">Update</button>
+
+                            <div id="prev-next" class="d-none gap-2">
+                                <button type="button" class="btn btn-success rounded-3 d-inline-flex align-items-center gap-1" id="previous-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-step-back"><path d="M13.971 4.285A2 2 0 0 1 17 6v12a2 2 0 0 1-3.029 1.715l-9.997-5.998a2 2 0 0 1-.003-3.432z" /><path d="M21 20V4" /></svg>
+                                    <span>Previous</span>
+                                </button>
+                                <button type="button" class="btn btn-success rounded-3 d-inline-flex align-items-center gap-1" id="next-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-step-forward"><path d="M10.029 4.285A2 2 0 0 0 7 6v12a2 2 0 0 0 3.029 1.715l9.997-5.998a2 2 0 0 0 .003-3.432z" /><path d="M3 4v16" /></svg>
+                                    <span>Next</span>
+                                </button>
+                            </div>
+
+                            <button type="button" class="btn bg-outline-dark bg-dark-subtle text-dark rounded-3 px-4" id="clear-btn">Clear</button>
+                            <a href="admin-dashboard.html" class="btn bg-danger-subtle text-danger border border-danger-subtle rounded-3 px-4">Exit</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="../JS/DispatchAssignment.js"></script>
+    </body>
+
+</html>
