@@ -1,30 +1,106 @@
 const express = require("express");
 const router = express.Router();
+const oracledb = require("oracledb");
 const getConnection = require("../db");
+
+router.get("/types", async (req, res) => {
+  let connection;
+
+  try {
+    connection = await getConnection();
+    const result = await connection.execute(
+      `SELECT LOV_VALUE FROM LOV_MASTER
+       WHERE LOV_TYPE = 'VehicleType'
+         AND STATUS = 'ACTIVE'
+       ORDER BY LOV_VALUE`
+    );
+
+    const types = (result.rows || []).map((row) => row[0]);
+    res.json(types);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Unable to fetch vehicle types",
+    });
+  } finally {
+    if (connection) {
+      await connection.close();
+    }
+  }
+});
+
+router.get("/next-id", async (req, res) => {
+  let connection;
+
+  try {
+    connection = await getConnection();
+    const result = await connection.execute(
+      `SELECT NVL(MAX(VEHICLEID), 0) + 1 FROM VEHICLE`
+    );
+
+    const nextId = result.rows && result.rows[0] ? result.rows[0][0] : 1;
+    res.json({ nextId });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Unable to get next vehicle ID",
+    });
+  } finally {
+    if (connection) {
+      await connection.close();
+    }
+  }
+});
 
 router.post("/", async (req, res) => {
   let connection;
 
   try {
-    const { vehicleNumber, vehicleType, capacity } = req.body;
+    const { vehicleId, vehicleNumber, vehicleType, capacity } = req.body;
 
     connection = await getConnection();
-    await connection.execute(
-      `INSERT INTO VEHICLE(VEHICLENUMBER, VEHICLETYPE, CAPACITY)
-       VALUES (:1, :2, :3)`,
-      [vehicleNumber, vehicleType, capacity],
+    let result;
+
+    if (vehicleId) {
+      result = await connection.execute(
+        `INSERT INTO VEHICLE (VEHICLEID, VEHICLENUMBER, VEHICLETYPE, CAPACITY)
+         VALUES (:vehicleId, :vehicleNumber, :vehicleType, :capacity)`,
+        { vehicleId, vehicleNumber, vehicleType, capacity },
+        { autoCommit: true }
+      );
+
+      res.json({
+        success: true,
+        message: "Vehicle created successfully.",
+        vehicleId,
+      });
+      return;
+    }
+
+    result = await connection.execute(
+      `INSERT INTO VEHICLE (VEHICLENUMBER, VEHICLETYPE, CAPACITY)
+       VALUES (:vehicleNumber, :vehicleType, :capacity)
+       RETURNING VEHICLEID INTO :vehicleId`,
+      {
+        vehicleNumber,
+        vehicleType,
+        capacity,
+        vehicleId: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+      },
       { autoCommit: true }
     );
 
+    const createdId = result.outBinds.vehicleId[0];
     res.json({
       success: true,
-      message: "Vehicle Added",
+      message: "Vehicle created successfully.",
+      vehicleId: createdId,
     });
   } catch (err) {
     console.error(err);
     res.status(500).json({
       success: false,
-      message: "Insert Failed",
+      message: "Insert Failed. Check Vehicle ID, number, and type.",
     });
   } finally {
     if (connection) {
@@ -74,7 +150,6 @@ router.get("/next/:id", async (req, res) => {
   }
 });
 
-// FETCH PREVIOUS VEHICLE
 router.get("/previous/:id", async (req, res) => {
   let connection;
 
@@ -116,7 +191,6 @@ router.get("/previous/:id", async (req, res) => {
   }
 });
 
-// FETCH VEHICLE BY ID
 router.get("/:id", async (req, res) => {
   let connection;
 
@@ -155,7 +229,6 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// UPDATE VEHICLE
 router.put("/:id", async (req, res) => {
   let connection;
 
@@ -182,7 +255,7 @@ router.put("/:id", async (req, res) => {
 
     res.json({
       success: true,
-      message: "Vehicle Updated",
+      message: "Vehicle updated successfully.",
     });
   } catch (err) {
     console.error(err);
@@ -196,7 +269,6 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// VIEW ALL VEHICLES
 router.get("/", async (req, res) => {
   let connection;
 

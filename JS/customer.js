@@ -70,6 +70,7 @@ customerId.addEventListener("input", async () => {
 
 
 registerBtn.addEventListener("click", async () => {
+    const phoneRegex = /^[0-9]{10}$/;
     if (!customerName.value.trim() || !customerAddress.value.trim() || !customerPhone.value.trim()) {
         Swal.fire({
             position: "center",
@@ -78,6 +79,16 @@ registerBtn.addEventListener("click", async () => {
             showConfirmButton: true
         });
         return; 
+    }
+
+    if (!phoneRegex.test(customerPhone.value.trim())) {
+        Swal.fire({
+            position: "center",
+            icon: "error",
+            title: "Phone number must be 10 digits",
+            showConfirmButton: true
+        });
+        return;
     }
 
     try {
@@ -127,6 +138,27 @@ updateBtn.addEventListener("click", async () => {
             title: "No valid Customer ID specified for update",
             showConfirmButton: false,
             timer: 1500,
+        });
+        return;
+    }
+
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!customerName.value.trim() || !customerAddress.value.trim() || !customerPhone.value.trim()) {
+        Swal.fire({
+            position: "center",
+            icon: "error",
+            title: "Please fill in all required fields",
+            showConfirmButton: true
+        });
+        return; 
+    }
+
+    if (!phoneRegex.test(customerPhone.value.trim())) {
+        Swal.fire({
+            position: "center",
+            icon: "error",
+            title: "Phone number must be 10 digits",
+            showConfirmButton: true
         });
         return;
     }
