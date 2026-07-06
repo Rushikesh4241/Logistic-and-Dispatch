@@ -2,6 +2,22 @@ const express = require("express");
 const router = express.Router();
 const getConnection = require("../db");
 
+router.get("/new-id", async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
+        const result = await connection.execute(
+            `SELECT NVL(MAX(ASSIGNMENTID), 0) + 1 FROM DISPATCHASSIGNMENT`
+        );
+        res.json({ nextId: result.rows[0][0] });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Error calculating sequence parameters" });
+    } finally {
+        if (connection) await connection.close();
+    }
+});
+
 router.get("/orders", async (req, res) => {
     let connection;
     try {

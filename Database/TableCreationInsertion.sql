@@ -116,7 +116,7 @@ VALUES ('VehicleType', 'Tempo', 'ACTIVE');
 
 COMMIT;
 
-select * from LOV_MASTER;
+select * from LOV;
 desc LOV_MASTER;
 desc vehicle;
 

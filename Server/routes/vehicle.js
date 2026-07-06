@@ -9,7 +9,7 @@ router.get("/types", async (req, res) => {
   try {
     connection = await getConnection();
     const result = await connection.execute(
-      `SELECT LOV_VALUE FROM LOV_MASTER
+      `SELECT LOV_VALUE FROM LOV
        WHERE LOV_TYPE = 'VehicleType'
          AND STATUS = 'ACTIVE'
        ORDER BY LOV_VALUE`

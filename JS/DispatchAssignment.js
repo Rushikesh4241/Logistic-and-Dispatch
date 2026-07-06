@@ -1,57 +1,133 @@
-const API_BASE_URL = "http://localhost:3000/dispatch-assignment";
-
 const assignmentId = document.getElementById("assignment-id");
 const orderId = document.getElementById("order-id");
 const driverId = document.getElementById("driver-id");
 const vehicleId = document.getElementById("vehicle-id");
 const dateTime = document.getElementById("date-time");
 
-const registerBtn = document.getElementById("register-btn");
-const updateBtn = document.getElementById("update-btn");
-const prevNext = document.getElementById("prev-next");
+const actionBtn = document.getElementById("action-btn");
+const toggleFind = document.getElementById("toggle-find");
+const toggleNew = document.getElementById("toggle-new");
+const dbFeedback = document.getElementById("id-db-feedback");
 
-function toggleFormMode(isUpdateMode) {
-    if (isUpdateMode) {
-        registerBtn.classList.add("d-none");
-        updateBtn.classList.remove("d-none");
-        prevNext.classList.remove("d-none");
-        prevNext.style.setProperty("display", "inline-flex", "important");
-    } else {
-        registerBtn.classList.remove("d-none");
-        updateBtn.classList.add("d-none");
-        prevNext.style.setProperty("display", "none", "important");
-        prevNext.classList.add("d-none");
-    }
+const API_BASE_URL = "http://localhost:3000/dispatch-assignment";
+
+let activeMode = "FIND"; 
+let originalSnapshot = { order: "", driver: "", vehicle: "", date: "" };
+
+function captureSnapshot() {
+    originalSnapshot = {
+        order: orderId.value,
+        driver: driverId.value,
+        vehicle: vehicleId.value,
+        date: dateTime.value
+    };
+}
+
+function dataIsMutated() {
+    return (
+        orderId.value !== originalSnapshot.order ||
+        driverId.value !== originalSnapshot.driver ||
+        vehicleId.value !== originalSnapshot.vehicle ||
+        dateTime.value !== originalSnapshot.date
+    );
 }
 
 function clearFields() {
-    assignmentId.value = "";
     orderId.value = "";
     driverId.value = "";
     vehicleId.value = "";
     dateTime.value = "";
 }
 
-assignmentId.addEventListener("input", async () => {
-    const id = assignmentId.value.trim();
+function resetInlineFeedback() {
+    dbFeedback.innerText = "";
+    dbFeedback.style.display = "none";
+}
 
-    if (!id) {
+// Switches form configurations and handles max(id) + 1 increments asynchronously
+async function setFormMode(mode) {
+    activeMode = mode;
+    resetInlineFeedback();
+    
+    if (mode === "NEW") {
+        toggleNew.classList.add("active");
+        toggleFind.classList.remove("active");
+        
+        actionBtn.innerText = "Save";
+        actionBtn.className = "btn btn-success rounded-3 px-4 fw-bold";
+        
+        assignmentId.disabled = true; 
         clearFields();
-        toggleFormMode(false);
-        return;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/new-id`);
+            if (response.ok) {
+                const data = await response.json();
+                assignmentId.value = data.nextId;
+            }
+        } catch (err) {
+            console.error("Error fetching sequential transaction id sequence:", err);
+        }
+        captureSnapshot();
+    } else {
+        toggleFind.classList.add("active");
+        toggleNew.classList.remove("active");
+        
+        actionBtn.innerText = "Update";
+        actionBtn.className = "btn btn-warning rounded-3 px-4 fw-bold text-dark";
+        
+        assignmentId.disabled = false;
+        assignmentId.value = "";
+        clearFields();
+        captureSnapshot();
     }
+}
+
+// Mode Toggle Event Triggers
+toggleFind.addEventListener("click", () => {
+    if (activeMode === "FIND") return;
+    setFormMode("FIND");
+});
+
+toggleNew.addEventListener("click", async () => {
+    if (activeMode === "NEW") return;
+    
+    if (dataIsMutated() && orderId.value !== "") {
+        Swal.fire({
+            title: "Unsaved Modifications",
+            text: "Switching modes will discard unsaved entry modifications. Proceed?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#5b2e8a",
+            cancelButtonColor: "#dc3545",
+            confirmButtonText: "Yes, discard"
+        }).then((result) => { if (result.isConfirmed) setFormMode("NEW"); });
+    } else {
+        setFormMode("NEW");
+    }
+});
+
+// Auto-fetch data array matching inputs on data inputs string mutations
+assignmentId.addEventListener("input", async () => {
+    if (activeMode === "NEW") return; 
+
+    const id = assignmentId.value.trim();
+    if (!id) { clearFields(); captureSnapshot(); resetInlineFeedback(); return; }
 
     try {
         const response = await fetch(`${API_BASE_URL}/${id}`);
-
-        if (!response.ok) {
-            clearFields();
-            toggleFormMode(false);
-            return;
+        
+        if (!response.ok) { 
+            clearFields(); 
+            captureSnapshot(); 
+            dbFeedback.innerText = `Assignment ID "${id}" does not exist.`;
+            dbFeedback.style.display = "block";
+            return; 
         }
 
+        resetInlineFeedback();
         const data = await response.json();
-        assignmentId.value = data.assignmentId || "";
+        
         orderId.value = data.orderId || "";
         driverId.value = data.driverId || "";
         vehicleId.value = data.vehicleId || "";
@@ -61,188 +137,152 @@ assignmentId.addEventListener("input", async () => {
         } else {
             dateTime.value = "";
         }
-
-        toggleFormMode(true);
+        captureSnapshot();
     } catch (err) {
-        console.error("Connection error", err);
+        console.error(err);
     }
 });
 
-registerBtn.addEventListener("click", async () => {
+// COMBINED DATA COMMIT ENGINE
+actionBtn.addEventListener("click", async () => {
     if (!orderId.value || !driverId.value || !vehicleId.value) {
-        Swal.fire({
-            position: "center",
-            icon: "info",
-            title: "Please fill in all required fields",
-            showConfirmButton: true
-        });
+        Swal.fire({ icon: "error", title: "Missing Fields", text: "Please select an Order, Driver, and Vehicle.", confirmButtonColor: "#5b2e8a" });
         return;
     }
 
-    try {
-        const response = await fetch(`${API_BASE_URL}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                orderId: orderId.value,
-                driverId: driverId.value,
-                vehicleId: vehicleId.value,
-                assignedDate: dateTime.value
-            }),
-        });
+    // UPDATE ROUTE
+    if (activeMode === "FIND") {
+        const id = assignmentId.value.trim();
+        if (!id) { Swal.fire({ icon: "error", title: "ID Missing", text: "Provide a valid target Assignment ID to edit.", confirmButtonColor: "#5b2e8a" }); return; }
 
-        const data = await response.json();
-
-        Swal.fire({
-            position: "center",
-            icon: "success",
-            title: data.message || "Assignment Saved",
-            showConfirmButton: false,
-            timer: 1500,
-        });
-        
-        clearFields();
-        toggleFormMode(false);
-    } catch (err) {
-        console.error(err);
-    }
-});
-
-
-updateBtn.addEventListener("click", async () => {
-    const id = assignmentId.value.trim();
-
-    if (!id) {
-        Swal.fire({
-            position: "center",
-            icon: "error",
-            title: "No valid Assignment ID specified for update",
-            showConfirmButton: true
-        });
-        return;
-    }
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/${id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                orderId: orderId.value,
-                driverId: driverId.value,
-                vehicleId: vehicleId.value,
-                assignedDate: dateTime.value
-            }),
-        });
-
-        const data = await response.json();
-
-        Swal.fire({
-            position: "center",
-            icon: "success",
-            title: data.message || "Assignment Updated",
-            showConfirmButton: false,
-            timer: 1500,
-        });
-    } catch (err) {
-        console.error(err);
-    }
-});
-
-
-document.getElementById("previous-btn").addEventListener("click", async () => {
-    let id = assignmentId.value.trim();
-    if (!id) return;
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/previous/${id}`);
-
-        if (!response.ok) {
-            Swal.fire({
-                position: "center",
-                icon: "info",
-                title: "Reached the beginning of Assignment list",
-                showConfirmButton: false,
-                timer: 1500,
-            });
+        if (!dataIsMutated()) {
+            Swal.fire({ icon: "info", title: "No Changes Detected", text: "Please enter new changes before clicking Update.", confirmButtonColor: "#5b2e8a" });
             return;
         }
 
-        const data = await response.json();
-        assignmentId.value = data.assignmentId || "";
-        orderId.value = data.orderId || "";
-        driverId.value = data.driverId || "";
-        vehicleId.value = data.vehicleId || "";
-        
-        if (data.assignedDate) {
-            dateTime.value = data.assignedDate.split("T")[0];
-        } else {
-            dateTime.value = "";
-        }
-        
-        toggleFormMode(true);
-    } catch (err) {
-        console.error(err);
+        try {
+            const response = await fetch(`${API_BASE_URL}/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    orderId: orderId.value,
+                    driverId: driverId.value,
+                    vehicleId: vehicleId.value,
+                    dateTime: dateTime.value
+                })
+            });
+            const data = await response.json();
+            Swal.fire({ icon: "success", title: data.message || "Assignment Updated", timer: 1500, showConfirmButton: false });
+            captureSnapshot();
+        } catch (err) { console.error(err); }
+
+    // SAVE ROUTE
+    } else {
+        try {
+            const response = await fetch(API_BASE_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    orderId: orderId.value,
+                    driverId: driverId.value,
+                    vehicleId: vehicleId.value,
+                    dateTime: dateTime.value
+                })
+            });
+            const data = await response.json();
+            Swal.fire({ icon: "success", title: data.message || "Assignment Saved", timer: 1500, showConfirmButton: false });
+            clearFields();
+            setFormMode("FIND");
+        } catch (err) { console.error(err); }
     }
 });
 
+// Safety navigation warning interceptor block
+async function verifyNavigationSafety() {
+    if (dataIsMutated() && orderId.value !== "") {
+        const check = await Swal.fire({
+            title: "Data Won't Be Saved",
+            text: "You have unsaved changes. Do you want to discard them and navigate?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#28a745",
+            cancelButtonColor: "#5b2e8a",
+            confirmButtonText: "Yes, discard and move"
+        });
+        return check.isConfirmed;
+    }
+    return true;
+}
+
+// NEXT
 document.getElementById("next-btn").addEventListener("click", async () => {
+    const isSafe = await verifyNavigationSafety();
+    if (!isSafe) return;
+
     let id = assignmentId.value.trim();
-    if (!id) id = 0;
+    if (!id || activeMode === "NEW") id = 0;
 
     try {
         const response = await fetch(`${API_BASE_URL}/next/${id}`);
-
-        if (!response.ok) {
-            Swal.fire({
-                position: "center",
-                icon: "info",
-                title: "Reached the End of Assignment list",
-                showConfirmButton: false,
-                timer: 1500,
-            });
-            return;
-        }
+        if (!response.ok) { Swal.fire({ icon: "info", title: "End of dataset reached", confirmButtonColor: "#5b2e8a" }); return; }
 
         const data = await response.json();
-        assignmentId.value = data.assignmentId || "";
+        setFormMode("FIND");
+        assignmentId.value = data.assignmentId;
         orderId.value = data.orderId || "";
         driverId.value = data.driverId || "";
         vehicleId.value = data.vehicleId || "";
-        
         if (data.assignedDate) {
             dateTime.value = data.assignedDate.split("T")[0];
         } else {
             dateTime.value = "";
         }
-        
-        toggleFormMode(true);
-    } catch (err) {
-        console.error(err);
+        captureSnapshot();
+    } catch (err) { console.error(err); }
+});
+
+// PREVIOUS
+document.getElementById("previous-btn").addEventListener("click", async () => {
+    let id = assignmentId.value.trim();
+    if (!id || activeMode === "NEW") { 
+        Swal.fire({ icon: "info", title: "Missing ID", text: "Please enter an active reference code or switch to Find mode.", confirmButtonColor: "#5b2e8a" }); 
+        return; 
     }
+
+    const isSafe = await verifyNavigationSafety();
+    if (!isSafe) return;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/previous/${id}`);
+        if (!response.ok) { Swal.fire({ icon: "info", title: "Beginning of dataset reached", confirmButtonColor: "#5b2e8a" }); return; }
+
+        const data = await response.json();
+        setFormMode("FIND");
+        assignmentId.value = data.assignmentId;
+        orderId.value = data.orderId || "";
+        driverId.value = data.driverId || "";
+        vehicleId.value = data.vehicleId || "";
+        if (data.assignedDate) {
+            dateTime.value = data.assignedDate.split("T")[0];
+        } else {
+            dateTime.value = "";
+        }
+        captureSnapshot();
+    } catch (err) { console.error(err); }
 });
 
-document.getElementById("clear-btn").addEventListener("click", () => {
-    clearFields();
-    toggleFormMode(false);
-});
-
-
+// INITIAL DROPDOWN DOM DATA POPULATION POPULATOR
 document.addEventListener("DOMContentLoaded", async () => {
     try {
         const resOrders = await fetch(`${API_BASE_URL}/orders`);
-        const dataOrders = await resOrders.text();
-        document.getElementById("order-id").innerHTML = dataOrders;
+        document.getElementById("order-id").innerHTML = await resOrders.text();
 
         const resDrivers = await fetch(`${API_BASE_URL}/drivers`);
-        const dataDrivers = await resDrivers.text();
-        document.getElementById("driver-id").innerHTML = dataDrivers;
+        document.getElementById("driver-id").innerHTML = await resDrivers.text();
 
         const resVehicles = await fetch(`${API_BASE_URL}/vehicles`);
-        const dataVehicles = await resVehicles.text();
-        document.getElementById("vehicle-id").innerHTML = dataVehicles;
-
-    } 
-    catch (err) {
-        console.error("Error loading structural initialization selectors:", err);
+        document.getElementById("vehicle-id").innerHTML = await resVehicles.text();
+    } catch (err) {
+        console.error("Initialization failure handling choice rows mappings:", err);
     }
 });
