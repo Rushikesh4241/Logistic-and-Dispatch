@@ -1,233 +1,150 @@
 const express = require("express");
-const oracledb = require("oracledb");
-const cors = require("cors");
 const router = express.Router();
-
 const getConnection = require("../db");
 
-router.post("/", async (req, res) => {
 
+router.get("/new-id", async (req, res) => {
     let connection;
-
     try {
-        const {customerName, customerAddress, customerPhone} = req.body;
-
         connection = await getConnection();
-
-        await connection.execute(
-            `INSERT INTO CUSTOMER(CUSTOMERNAME, ADDRESS, PHONE)
-            VALUES (:1, :2, :3)`, 
-            [customerName, customerAddress, customerPhone],
-            {autoCommit: true}
-);
-
-
-        res.json({
-            success: true,
-            message: "Customer Added"
-        });
-    }
-    catch(err) {
-        res.status(500).json({
-            success: false,
-            message: "An error occured"
-        })
-    }
-    finally {
-        if (connection) {
-            await connection.close(); 
-        }
+        const result = await connection.execute(
+            `SELECT NVL(MAX(CUSTOMERID), 0) + 1 FROM CUSTOMER`
+        );
+        res.json({ nextId: result.rows[0][0] });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Error calculating sequence assignment parameters" });
+    } finally {
+        if (connection) await connection.close();
     }
 });
 
-router.get("/:id", async (req, res) => {
-
+// GET NEXT RECORD
+router.get("/next/:id", async (req, res) => {
     let connection;
-
     try {
         connection = await getConnection();
+        const result = await connection.execute(
+            `SELECT CUSTOMERID, CUSTOMERNAME, ADDRESS, PHONE FROM CUSTOMER WHERE 
+             CUSTOMERID = (SELECT MIN(CUSTOMERID) FROM CUSTOMER WHERE CUSTOMERID > :1)`,
+            [req.params.id]
+        );
 
+        if (!result.rows || result.rows.length === 0) {
+            return res.status(404).json({ success: false, message: "No more records found" });
+        }
+
+        const row = result.rows[0];
+        res.json({
+            customerId: row[0],
+            customerName: row[1],
+            customerAddress: row[2],
+            customerPhone: row[3]
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Record lookup failed" });
+    } finally {
+        if (connection) await connection.close();
+    }
+});
+
+// GET PREVIOUS RECORD
+router.get("/previous/:id", async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
+        const result = await connection.execute(
+            `SELECT CUSTOMERID, CUSTOMERNAME, ADDRESS, PHONE FROM CUSTOMER WHERE
+             CUSTOMERID = (SELECT MAX(CUSTOMERID) FROM CUSTOMER WHERE CUSTOMERID < :1)`,
+            [req.params.id]
+        );
+
+        if (!result.rows || result.rows.length === 0) {
+            return res.status(404).json({ success: false, message: "No more records found" });
+        }
+
+        const row = result.rows[0];
+        res.json({
+            customerId: row[0],
+            customerName: row[1],
+            customerAddress: row[2],
+            customerPhone: row[3]
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Record lookup failed" });
+    } finally {
+        if (connection) await connection.close();
+    }
+});
+
+
+// GET BY INDIVIDUAL CUSTOMER ID
+router.get("/:id", async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
         const result = await connection.execute(
             `SELECT CUSTOMERNAME, ADDRESS, PHONE FROM CUSTOMER WHERE CUSTOMERID = :id`,
             [req.params.id]
         );
 
         if (result.rows.length === 0) {
-            return res.status(404).json({
-                message: "Record not found"
-            })
+            return res.status(404).json({ message: "Record not found" });
         }
 
         const row = result.rows[0];
-
         res.json({
             customerName: row[0],
             customerAddress: row[1],
             customerPhone: row[2]
         });
-    }
-    catch (err) {
+    } catch (err) {
         console.error(err);
-        res.status(500).json({
-                message: "Record not found"
-        });
-    }
-    finally {
-        if (connection) {
-            await connection.close(); 
-        }
+        res.status(500).json({ message: "Record lookup failed" });
+    } finally {
+        if (connection) await connection.close();
     }
 });
 
-router.get("/next/:id", async (req, res) => {
-
+// POST (INSERT NEW CUSTOMER)
+router.post("/", async (req, res) => {
     let connection;
-
     try {
+        const { customerName, customerAddress, customerPhone } = req.body;
         connection = await getConnection();
-
-        const result = await connection.execute(
-            `SELECT CUSTOMERID, CUSTOMERNAME, ADDRESS, PHONE FROM CUSTOMER WHERE 
-            CUSTOMERID = (SELECT MIN(CUSTOMERID) FROM CUSTOMER WHERE CUSTOMERID > :1)`,
-            [req.params.id]
-        )
-
-        if (!result.rows || result.rows.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "No more records found"
-            })
-        }
-
-        const row = result.rows[0];
-
-        res.json({
-            customerId: row[0],
-            customerName: row[1],
-            customerAddress: row[2],
-            customerPhone: row[3]
-        });
-    }
-    catch (err) {
-        console.error(err);
-        res.status(500).json({
-                message: "Record not found"
-        });
-    }
-    finally {
-        if (connection) {
-            await connection.close(); 
-        }
+        await connection.execute(
+            `INSERT INTO CUSTOMER(CUSTOMERNAME, ADDRESS, PHONE) VALUES (:1, :2, :3)`, 
+            [customerName, customerAddress, customerPhone],
+            { autoCommit: true }
+        );
+        res.json({ success: true, message: "Customer Added Successfully" });
+    } catch(err) {
+        res.status(500).json({ success: false, message: "An error occurred during creation" });
+    } finally {
+        if (connection) await connection.close();
     }
 });
 
-router.get("/previous/:id", async (req, res) => {
-
-    let connection;
-
-    try {
-        connection = await getConnection();
-
-        const result = await connection.execute(
-            `SELECT CUSTOMERID, CUSTOMERNAME, ADDRESS, PHONE FROM CUSTOMER WHERE
-            CUSTOMERID = (SELECT MAX(CUSTOMERID) FROM CUSTOMER WHERE CUSTOMERID < :1)`,
-            [req.params.id]
-        )
-
-        if (!result.rows || result.rows.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "No more records found"
-            });
-        };
-
-        const row = result.rows[0];
-
-        res.json({
-            customerId: row[0],
-            customerName: row[1],
-            customerAddress: row[2],
-            customerPhone: row[3]
-        })
-    }
-    catch (err){
-        return res.status(404).json({
-                success: false,
-                message: "No more records found"
-            });
-    }
-    finally {
-        if (connection) {
-            await connection.close();
-        }
-    }
-});
-
-
+// PUT (UPDATE EXISTING CUSTOMER)
 router.put("/:id", async (req, res) => {
-
-    const {customerName, customerAddress, customerPhone} = req.body;
-    
+    const { customerName, customerAddress, customerPhone } = req.body;
     let connection;
-
     try {
         connection = await getConnection();
-
-        const result = await connection.execute(
+        await connection.execute(
             `UPDATE CUSTOMER SET CUSTOMERNAME = :1, ADDRESS = :2, PHONE = :3 WHERE CUSTOMERID = :4`,
             [customerName, customerAddress, customerPhone, req.params.id],
-            {autoCommit: true}
+            { autoCommit: true }
         );
-
-        res.json({
-            success: true,
-            message: `Customer updated with ${req.params.id}`
-        });
-
-    }
-    catch (err) {
+        res.json({ success: true, message: `Customer updated with ID ${req.params.id}` });
+    } catch (err) {
         console.error(err);
-        res.status(500).json({
-            message: "Record not found"
-        });
-    }
-    finally {
-        if (connection) {
-            await connection.close(); 
-        }
+        res.status(500).json({ message: "Record update transaction declined" });
+    } finally {
+        if (connection) await connection.close();
     }
 });
-
-// router.delete("/:id", async(req,res) => {
-
-//     let connection;
-
-//     try {
-//         connection = await getConnection();
-
-//         await connection.execute(
-//             `DELETE FROM CUSTOMER WHERE CUSTOMERID = :1`,
-//             [req.params.id],
-//             {autoCommit: true}
-//         );
-
-//         res.json({
-//             success: true,
-//             message: `Customer deleted with ${req.params.id}`
-//         });
-
-//     }
-//     catch (err) {
-//         console.error(err);
-//         res.status(500).json({
-//             message: "Record not found"
-//         });
-//     }
-//     finally {
-//         if (connection) {
-//             await connection.close(); 
-//         }
-//     }
-// });
 
 module.exports = router;
