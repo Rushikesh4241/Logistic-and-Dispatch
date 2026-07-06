@@ -78,6 +78,72 @@ router.get("/:id", async (req, res) => {
     }
 });
 
+router.get("/next/:id", async (req, res) => {
+    let connection;
+
+    try {
+        connection = await getConnection();
+        const result = await connection.execute(
+            `SELECT DELIVERYID, ORDERID, DELIVERYDATE, REMARKS, PROOFOFDELIVERY FROM DELIVERY WHERE
+             DELIVERYID = (SELECT MIN(DELIVERYID) FROM DELIVERY WHERE DELIVERYID > :1)`,
+            [req.params.id]
+        );
+
+        if (!result.rows || result.rows.length === 0) {
+            return res.status(404).json({ success: false, message: "No more records found" });
+        }
+
+        const row = result.rows[0];
+        res.json({
+            deliveryId: row[0],
+            orderId: row[1],
+            deliveryDate: row[2],
+            remarks: row[3],
+            proofOfDelivery: row[4]
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Record not found" });
+    } finally {
+        if (connection) {
+            await connection.close();
+        }
+    }
+});
+
+router.get("/previous/:id", async (req, res) => {
+    let connection;
+
+    try {
+        connection = await getConnection();
+        const result = await connection.execute(
+            `SELECT DELIVERYID, ORDERID, DELIVERYDATE, REMARKS, PROOFOFDELIVERY FROM DELIVERY WHERE
+             DELIVERYID = (SELECT MAX(DELIVERYID) FROM DELIVERY WHERE DELIVERYID < :1)`,
+            [req.params.id]
+        );
+
+        if (!result.rows || result.rows.length === 0) {
+            return res.status(404).json({ success: false, message: "No more records found" });
+        }
+
+        const row = result.rows[0];
+        res.json({
+            deliveryId: row[0],
+            orderId: row[1],
+            deliveryDate: row[2],
+            remarks: row[3],
+            proofOfDelivery: row[4]
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Record not found" });
+    } finally {
+        if (connection) {
+            await connection.close();
+        }
+    }
+});
+
 router.post("/", async (req, res) => {
     let connection;
 

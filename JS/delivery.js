@@ -7,12 +7,21 @@ const proofOfDelivery = document.getElementById("proof");
 const registerBtn = document.getElementById("register-btn");
 const updateBtn = document.getElementById("update-btn");
 const clearBtn = document.getElementById("clear-btn");
+const prevNext = document.getElementById("prev-next");
 
 const API_BASE_URL = "http://localhost:3000/delivery";
 
 function toggleFormMode(isUpdateMode) {
-    registerBtn.classList.toggle("d-none", isUpdateMode);
-    updateBtn.classList.toggle("d-none", !isUpdateMode);
+    if (isUpdateMode) {
+        registerBtn.classList.add("d-none");
+        updateBtn.classList.remove("d-none");
+        prevNext.classList.remove("d-none");
+    } else {
+        registerBtn.classList.remove("d-none");
+        updateBtn.classList.add("d-none");
+        prevNext.style.setProperty("display", "none", "important");
+        prevNext.classList.add("d-none");
+    }
 }
 
 function clearFields() {
@@ -205,6 +214,66 @@ updateBtn.addEventListener("click", async () => {
 clearBtn.addEventListener("click", () => {
     clearFields();
     toggleFormMode(false);
+});
+
+document.getElementById("next-btn").addEventListener("click", async () => {
+    let id = deliveryId.value.trim();
+    if (!id) id = 0;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/next/${id}`);
+
+        if (!response.ok) {
+            Swal.fire({
+                position: "center",
+                icon: "info",
+                title: "End of Delivery list reached",
+                showConfirmButton: false,
+                timer: 1500,
+            });
+            return;
+        }
+
+        const data = await response.json();
+        deliveryId.value = data.deliveryId;
+        orderId.value = data.orderId || "";
+        deliveryDate.value = data.deliveryDate ? data.deliveryDate.split("T")[0] : "";
+        remarks.value = data.remarks || "";
+        proofOfDelivery.value = data.proofOfDelivery || "";
+        toggleFormMode(true);
+    } catch (err) {
+        console.error(err);
+    }
+});
+
+document.getElementById("previous-btn").addEventListener("click", async () => {
+    let id = deliveryId.value.trim();
+    if (!id) return;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/previous/${id}`);
+
+        if (!response.ok) {
+            Swal.fire({
+                position: "center",
+                icon: "info",
+                title: "Reached the beginning of Delivery list",
+                showConfirmButton: false,
+                timer: 1500,
+            });
+            return;
+        }
+
+        const data = await response.json();
+        deliveryId.value = data.deliveryId;
+        orderId.value = data.orderId || "";
+        deliveryDate.value = data.deliveryDate ? data.deliveryDate.split("T")[0] : "";
+        remarks.value = data.remarks || "";
+        proofOfDelivery.value = data.proofOfDelivery || "";
+        toggleFormMode(true);
+    } catch (err) {
+        console.error(err);
+    }
 });
 
 loadOrderIds();
