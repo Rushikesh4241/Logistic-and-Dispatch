@@ -16,49 +16,62 @@
 
     <body>
 
-        <div class="main-form border rounded-5 p-5 shadow-lg bg-white mx-auto mt-5">
-            <div class="row m-0">
-                <div class="col p-0">
-                    <div class="d-flex justify-content-center mb-2">
-                        <h1 class="main-text fw-bold text-white px-4 py-2 rounded-3 text-center fs-1">Logistic and Dispatch</h1>
-                    </div>
-                    <div class="d-flex justify-content-center mb-4">
-                        <h4 class="main-text fw-bold text-white px-3 py-1 rounded-3 text-center fs-4">Delivery Entry Form</h4>
-                    </div>
+        <div class="page-wrapper d-flex align-items-center justify-content-center py-5">
+            <div class="page-card shadow-lg rounded-4 p-5 bg-white">
+                <div class="hero text-center mb-4">
+                    <div class="hero-title">Logistic and Dispatch</div>
+                    <div class="hero-subtitle">Delivery Entry Form</div>
+                </div>
 
+                <div class="form-card rounded-3 p-4">
                     <form id="delivery-form">
-
-                        <div class="mb-3 d-flex align-items-center text-nowrap gap-3">
-                            <label for="delivery-id" class="form-label mb-0" style="width: 140px;">Delivery ID:</label>
-                            <input type="number" class="form-control" id="delivery-id" style="width: 180px; max-width: 100%;" >
-                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" data-bs-toggle="tooltip" title="Enter an existing Delivery ID only to update. Leave blank to register a new Delivery.">i</button>
+                        <div class="form-row d-flex align-items-center mb-3">
+                            <label for="delivery-id" class="form-label">Delivery ID :</label>
+                            <div class="input-with-info">
+                                <input type="number" class="form-control" id="delivery-id">
+                                <button type="button" class="small-btn find-btn" id="find-btn">Find</button>
+                                <button type="button" class="small-btn new-btn" id="new-btn">New</button>
+                                <button type="button" class="info-btn" tabindex="0" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="right" data-bs-content="Please enter an existing Delivery ID to update a record. Leave this field blank to register a new delivery.">i</button>
+                            </div>
                         </div>
 
-                        <div class="mb-3 d-flex align-items-center text-nowrap gap-3">
-                            <label for="order-id" class="form-label mb-0" style="width: 140px;">Order ID: <span class="text-danger">*</span></label>
-                            <select class="form-select" id="order-id" style="width: 180px; max-width: 100%;"></select>
+                        <div class="form-row d-flex align-items-center mb-3">
+                            <label for="order-id" class="form-label">Order ID : <span class="text-danger">*</span></label>
+                            <div class="input-with-info">
+                                <select class="form-select" id="order-id"></select>
+                            </div>
                         </div>
 
-                        <div class="mb-3 d-flex align-items-center text-nowrap gap-3">
-                            <label for="delivery-date" class="form-label mb-0" style="width: 140px;">Delivery Date: <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control" id="delivery-date" style="width: 220px; max-width: 100%;">
+                        <div class="form-row d-flex align-items-center mb-3">
+                            <label for="delivery-date" class="form-label">Delivery Date : <span class="text-danger">*</span></label>
+                            <div class="input-with-info">
+                                <input type="date" class="form-control" id="delivery-date">
+                            </div>
                         </div>
 
-                        <div class="mb-3 d-flex align-items-start text-nowrap gap-3">
-                            <label for="remarks" class="form-label pt-1 mb-0" style="width: 140px;">Remarks:</label>
-                            <textarea class="form-control" id="remarks" rows="3" style="width: 400px; max-width: 100%;"></textarea>
+                        <div class="form-row d-flex align-items-start mb-3">
+                            <label for="remarks" class="form-label">Remarks :</label>
+                            <div class="input-with-info">
+                                <textarea class="form-control" id="remarks" rows="3"></textarea>
+                            </div>
                         </div>
 
-                        <div class="mb-4 d-flex align-items-center text-nowrap gap-3">
-                            <label for="proof" class="form-label mb-0" style="width: 140px;">Proof of Delivery:</label>
-                            <input type="text" class="form-control" id="proof" style="width: 400px; max-width: 100%;">
+                        <div class="form-row d-flex align-items-center mb-4">
+                            <label for="proof" class="form-label">Proof of Delivery :</label>
+                            <div class="input-with-info">
+                                <input type="text" class="form-control" id="proof">
+                            </div>
                         </div>
 
-                        <div class="mb-3 d-flex justify-content-center mx-auto gap-3 pt-2">
-                            <button type="button" class="btn btn-primary rounded-3 px-4" id="register-btn">Register</button>
-                            <button type="button" class="btn btn-warning rounded-3 px-4 d-none" id="update-btn">Update</button>
-                            <button type="button" class="btn bg-outline-dark bg-dark-subtle text-dark rounded-3 px-4" id="clear-btn">Clear</button>
-                            <a href="admin-dashboard.html" class="btn bg-danger-subtle text-danger border border-danger-subtle rounded-3 px-4">Exit</a>
+                        <div class="actions d-flex justify-content-center gap-3">
+                            <button type="button" class="pill-btn green" id="register-btn">Register</button>
+                            <button type="button" class="pill-btn amber d-none" id="update-btn">Update</button>
+                            <div id="prev-next" class="action-pair">
+                                <button type="button" class="pill-btn grey" id="previous-btn">Previous</button>
+                                <button type="button" class="pill-btn yellow" id="next-btn">Next</button>
+                            </div>
+                            <button type="button" class="pill-btn light" id="clear-btn">Clear</button>
+                            <a href="admin-dashboard.html" class="pill-btn red">Exit</a>
                         </div>
                     </form>
                 </div>

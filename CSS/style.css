@@ -1,0 +1,173 @@
+body {
+  background-color: #f9f9f9;
+  font-family: "Varela Round";
+  font-size: 18px;
+}
+/* 
+.login-toggle {
+  width: 200px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.login-toggle .slider {
+  border: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.login-toggle .slider.active {
+  background-color: #6f00ff !important;
+  color: #ffffff !important;
+}
+.login-toggle .slider:hover:not(.active) {
+  background-color: #b8b8b8 !important;
+} */
+
+.main-form {
+  height: 90vh;
+  width: 90vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main-text {
+  background-color: #6f00ff;
+}
+
+button span {
+  display: none;
+}
+button:hover span {
+  display: inline !important;
+}
+
+/* New delivery form styles inspired by provided design */
+.page-wrapper {
+  min-height: 85vh;
+  background: transparent;
+}
+.page-card {
+  width: 96vw;
+  max-width: none;
+  min-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.hero-title {
+  background: linear-gradient(90deg,#5a18d6,#6f00ff);
+  color: #fff;
+  display: block;
+  width: 70%;
+  margin: 12px auto 6px auto;
+  padding: 18px 24px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 2.2rem;
+  text-align: center;
+}
+.hero-subtitle {
+  margin-top: 12px;
+  background: #bfa5ff;
+  color: #1f1f1f;
+  display: block;
+  width: 42%;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1.15rem;
+  text-align: center;
+}
+.form-card {
+  margin-top: 18px;
+  background: #fbf5ff;
+  border-radius: 12px;
+  box-shadow: 0 4px 18px rgba(20,20,30,0.06), inset 0 1px 0 rgba(255,255,255,0.6);
+  width: 72%;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 28px 36px;
+}
+.form-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.form-row .form-label {
+  width: 220px;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.input-with-info { 
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.small-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-weight: 700;
+  cursor: pointer;
+  background: #fff;
+}
+.find-btn {
+  color: #6f00ff;
+  border-color: #6f00ff;
+}
+.new-btn {
+  background: #6f00ff;
+  color: #fff;
+  border-color: #6f00ff;
+}
+.input-with-info .form-control,
+.input-with-info .form-select,
+.input-with-info textarea {
+  border-radius: 6px;
+  font-size: 1rem;
+  padding: 10px 12px;
+}
+.info-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #6f00ff;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1rem;
+}
+.actions { 
+  margin-top: 6px;
+}
+.pill-btn {
+  padding: 12px 26px;
+  border-radius: 28px;
+  border: none;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+  font-size: 1rem;
+}
+.pill-btn.green { background: #23a455; }
+.pill-btn.grey { background: #68747f; }
+.pill-btn.yellow { background: #f2a007; }
+.pill-btn.red { background: #d9534f; }
+.pill-btn.light { background: #6c757d; }
+.pill-btn.amber { background: #ffb000; }
+.action-pair { display: inline-flex; gap: 8px; align-items: center; }
+
+@media (max-width: 720px) {
+  .form-row { flex-direction: column; align-items: stretch; }
+  .form-row .form-label { width: 100%; }
+  .page-card { padding: 20px; }
+}
