@@ -48,7 +48,7 @@ customerId.addEventListener("input", async () => {
             Swal.fire({
             position: "center",
             icon: "error",
-            title: "Enter valid Customer ID to Update or view, Leave blank to registerg",
+            title: "Enter valid Customer ID to Update or view, Leave blank to register",
             showConfirmButton: true
         });
 
@@ -70,6 +70,7 @@ customerId.addEventListener("input", async () => {
 
 
 registerBtn.addEventListener("click", async () => {
+    const phoneRegex = /^[0-9]{10}$/;
     if (!customerName.value.trim() || !customerAddress.value.trim() || !customerPhone.value.trim()) {
         Swal.fire({
             position: "center",
@@ -78,6 +79,16 @@ registerBtn.addEventListener("click", async () => {
             showConfirmButton: true
         });
         return; 
+    }
+
+    if (!phoneRegex.test(customerPhone.value.trim())) {
+        Swal.fire({
+            position: "center",
+            icon: "error",
+            title: "Phone number must be 10 digits",
+            showConfirmButton: true
+        });
+        return;
     }
 
     try {
@@ -131,6 +142,27 @@ updateBtn.addEventListener("click", async () => {
         return;
     }
 
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!customerName.value.trim() || !customerAddress.value.trim() || !customerPhone.value.trim()) {
+        Swal.fire({
+            position: "center",
+            icon: "error",
+            title: "Please fill in all required fields",
+            showConfirmButton: true
+        });
+        return; 
+    }
+
+    if (!phoneRegex.test(customerPhone.value.trim())) {
+        Swal.fire({
+            position: "center",
+            icon: "error",
+            title: "Phone number must be 10 digits",
+            showConfirmButton: true
+        });
+        return;
+    }
+
     try {
         const response = await fetch(`${API_BASE_URL}/${id}`, {
             method: "PUT",
@@ -168,7 +200,6 @@ document.getElementById("clear-btn").addEventListener("click", () => {
     clearFields();
     toggleFormMode(false);
 });
-
 
 document.getElementById("next-btn").addEventListener("click", async () => {
     let id = customerId.value.trim();
@@ -229,3 +260,4 @@ document.getElementById("previous-btn").addEventListener("click", async () => {
         console.error(err);
     }
 });
+

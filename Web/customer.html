@@ -20,10 +20,10 @@
             <div class="row m-0">
                 <div class="col p-0">
                     <div class="d-flex justify-content-center mb-2">
-                        <h1 class="main-text fw-bold text-white px-4 py-2 rounded-3 text-center fs-3">Logistic and Dispatch</h1>
+                        <h1 class="main-text fw-bold text-white px-4 py-2 rounded-3 text-center fs-1">Logistic and Dispatch</h1>
                     </div>
                     <div class="d-flex justify-content-center mb-4">
-                        <h4 class="main-text fw-bold text-white px-3 py-1 rounded-3 text-center fs-5">Customer Master Entry</h4>
+                        <h4 class="main-text fw-bold text-white px-3 py-1 rounded-3 text-center fs-4">Customer Master Entry</h4>
                     </div>
 
                     <form id="customer-form">
@@ -31,7 +31,7 @@
                         <div id="fetch-id" class="d-flex align-items-center text-nowrap gap-3 mb-3">
                             <label for="id" class="form-label mb-0" style="width: 100px;">Customer ID: <span class="text-danger">*</span></label>
                             <input type="number" class="form-control" id="id" style="width: 120px;">
-                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" data-bs-toggle="tooltip" title="Enter an existing Vehicle ID only to update. Leave blank to register a new vehicle.">i</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" data-bs-toggle="tooltip" title="Enter an existing Customer ID only to update. Leave blank to register a new Customer.">i</button>
                         </div>
 
                         <div class="mb-3 d-flex align-items-center text-nowrap gap-3">
@@ -44,7 +44,7 @@
                         </div>
                         <div class="mb-4 d-flex align-items-center text-nowrap gap-3">
                             <label for="phone" class="form-label mb-0" style="width: 100px;">Phone: <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="phone" style="width: 180px; max-width: 100%;">
+                            <input type="text" class="form-control" id="phone" style="width: 180px; max-width: 100%;" pattern="[0-9]{10}" title="Enter a 10-digit phone number">
                         </div>
 
                         <div class="mb-3 d-flex justify-content-center mx-auto gap-3 pt-2">
