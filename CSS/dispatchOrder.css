@@ -1,0 +1,371 @@
+/* ================================================================
+   dispatchOrder.css  —  2-column no-scroll layout
+   Same purple theme as vehicle.css
+   ================================================================ */
+
+:root {
+  --purple:       #5b2e8a;
+  --light-purple: #f3eaf9;
+  --accent:       #7f4ec9;
+  --muted:        #6b7280;
+
+  --save-bg:      #16a34a;
+  --update-bg:    #d97706;
+  --prev-bg:      #4f46e5;
+  --next-bg:      #0891b2;
+  --exit-bg:      #dc2626;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ── Full-screen, NO overflow ── */
+html, body {
+  height: 100%;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  background: #f6f7fb;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Outer card ── */
+.container {
+  width: 96vw;
+  max-width: 1400px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 44px 64px 38px;
+  box-shadow: 0 8px 30px rgba(60, 64, 67, 0.10);
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+/* ── Page Header ── */
+.page-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-header h1 {
+  background: var(--purple);
+  color: #fff;
+  padding: 14px 48px;
+  border-radius: 8px;
+  font-size: 30px;
+  margin: 0;
+  text-align: center;
+}
+
+.page-header h2 {
+  background: linear-gradient(90deg, var(--accent), var(--purple));
+  color: #fff;
+  padding: 10px 32px;
+  border-radius: 8px;
+  font-size: 20px;
+  margin: 0;
+}
+
+/* ── Form panel ── */
+.form-wrap {
+  background: var(--light-purple);
+  border-radius: 12px;
+  padding: 22px 30px;
+  width: 85%;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.dispatch-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ══ 2-column grid row ══ */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 32px;
+  align-items: start;
+}
+
+/* First row: Order ID + Dispatch Date — center vertically so date aligns with ID input */
+.form-row:first-of-type {
+  align-items: center;
+}
+
+/* ── Each label + input group ── */
+.form-group {
+  display: flex;
+  align-items: center;
+  gap: 0px;
+  flex-wrap: nowrap;
+}
+
+.field-label {
+  width: 155px;
+  flex-shrink: 0;
+  color: var(--purple);
+  font-weight: 700;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+/* stack ID input + alert */
+.field-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+
+/* inline: input + toggle + info-btn */
+.field-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+/* ── Input base style ── */
+.field-input {
+  padding: 11px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(95, 62, 128, 0.18);
+  background: #fff;
+  font-size: 15px;
+  color: #1f2937;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  height: 44px;
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(127, 78, 201, 0.10);
+}
+
+/* dropdowns fill the remaining space */
+.field-select {
+  flex: 1;
+  min-width: 220px;
+  max-width: 320px;
+  height: 44px;
+}
+
+/* date input fixed width */
+.date-input {
+  width: 210px;
+}
+
+/* textareas */
+.textarea-field {
+  flex: 1;
+  min-width: 220px;
+  max-width: 340px;
+  min-height: 100px;
+  max-height: 120px;
+  resize: vertical;
+  line-height: 1.6;
+  height: auto;    /* override the 44px from .field-input */
+}
+
+/* Align textarea groups at top instead of center */
+.form-group:has(.textarea-field) {
+  align-items: flex-start;
+}
+.form-group:has(.textarea-field) .field-label {
+  padding-top: 10px;
+}
+
+/* Order ID locked in New mode */
+.field-input.id-locked {
+  background: #f0eaf8;
+  border-color: rgba(91, 46, 138, 0.22);
+  color: var(--purple);
+  cursor: not-allowed;
+  font-weight: 700;
+}
+.field-input.id-locked:focus {
+  box-shadow: none;
+  border-color: rgba(91, 46, 138, 0.22);
+}
+
+.required {
+  color: #f10d0d;
+  margin-left: 6px;
+  font-weight: 800;
+}
+
+/* ── Inline ID-not-found alert ── */
+.id-alert {
+  font-size: 12px;
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  padding: 4px 10px;
+  animation: fadeSlideIn 0.2s ease;
+  max-width: 300px;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Nav end-of-list message ── */
+.nav-end-msg {
+  font-size: 13px;
+  color: #9333ea;
+  background: #f5f3ff;
+  border: 1px solid #c4b5fd;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-weight: 600;
+  animation: fadeSlideIn 0.25s ease;
+  white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════
+   BUTTONS
+   ══════════════════════════════════════════ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 26px;
+  border-radius: 24px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+  white-space: nowrap;
+}
+.btn:hover  { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.18); }
+.btn:active { transform: translateY(0); }
+
+.btn-save   { background: linear-gradient(135deg, #16a34a, #22c55e); color:#fff; }
+.btn-save:hover { filter: brightness(1.08); }
+
+.btn-update { background: linear-gradient(135deg, #d97706, #f59e0b); color:#fff; }
+.btn-update:hover { filter: brightness(1.08); }
+
+.btn-prev {
+  background: linear-gradient(135deg, #4f46e5, #6366f1); color:#fff;
+  border-radius: 24px 0 0 24px; padding-right:14px; box-shadow:none;
+  border-right: 1px solid rgba(255,255,255,0.25);
+}
+.btn-prev:hover { filter:brightness(1.1); box-shadow:0 6px 18px rgba(79,70,229,.30); }
+
+.btn-next {
+  background: linear-gradient(135deg, #0891b2, #22d3ee); color:#fff;
+  border-radius: 0 24px 24px 0; padding-left:14px; box-shadow:none;
+}
+.btn-next:hover { filter:brightness(1.1); box-shadow:0 6px 18px rgba(8,145,178,.30); }
+
+.btn-exit { background: linear-gradient(135deg, #dc2626, #f87171); color:#fff; }
+.btn-exit:hover { filter: brightness(1.08); }
+
+/* ── Button groups ── */
+.btn-group-actions {
+  display: inline-flex;
+  gap: 12px;
+}
+
+.btn-group-nav {
+  display: inline-flex;
+  border-radius: 24px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.14);
+  overflow: hidden;
+}
+.btn-group-nav .btn-prev { border-radius: 24px 0 0 24px; }
+.btn-group-nav .btn-next { border-radius: 0 24px 24px 0; }
+
+/* ── Actions bar ── */
+.actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* ── Inline toggle-group ── */
+.btn-group-inline {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ══ Find / New sliding toggle ══ */
+.mode-toggle {
+  position: relative;
+  display: inline-flex;
+  background: #e0d4f5;
+  border-radius: 30px;
+  padding: 4px;
+  box-shadow: 0 2px 8px rgba(91,46,138,0.10);
+}
+
+.mode-toggle input[type="radio"] { display: none; }
+
+.mode-toggle label {
+  position: relative;
+  z-index: 1;
+  padding: 6px 18px;
+  border-radius: 24px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--purple);
+  transition: color 0.25s;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.mode-toggle .slider {
+  position: absolute;
+  top: 4px; left: 4px;
+  height: calc(100% - 8px);
+  border-radius: 24px;
+  background: var(--purple);
+  transition: transform 0.28s cubic-bezier(.4,0,.2,1),
+              width    0.28s cubic-bezier(.4,0,.2,1);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.mode-toggle input#mode-find:checked ~ .slider { transform: translateX(0); }
+.mode-toggle input#mode-new:checked  ~ .slider { transform: translateX(var(--slider-shift,80px)); }
+
+.mode-toggle input#mode-find:checked + label,
+.mode-toggle input#mode-new:checked  + label  { color: #fff; }
+
+/* Info button */
+.info-btn {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid rgba(91,46,138,0.14);
+  color: var(--purple);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  font-size: 12px;
+  flex-shrink: 0;
+}

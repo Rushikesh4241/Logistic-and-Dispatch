@@ -3,6 +3,47 @@ const router = express.Router();
 const getConnection = require("../db");
 
 
+// ── Get next available Order ID (mirrors vehicle next-id) ──
+router.get("/next-id", async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
+        const result = await connection.execute(
+            `SELECT NVL(MAX(ORDERID), 0) + 1 FROM DISPATCHORDER`
+        );
+        const nextId = result.rows && result.rows[0] ? result.rows[0][0] : 1;
+        res.json({ nextId });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Unable to get next Order ID" });
+    } finally {
+        if (connection) await connection.close();
+    }
+});
+
+
+// ── Load DispatchOrderStatus values from LOV table ──
+router.get("/statuses", async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
+        const result = await connection.execute(
+            `SELECT LOV_VALUE FROM LOV_Master
+              WHERE LOV_TYPE = 'DispatchOrderStatus'
+                AND STATUS   = 'ACTIVE'
+              ORDER BY LOV_ID`
+        );
+        const statuses = (result.rows || []).map(row => row[0]);
+        res.json(statuses);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Unable to fetch dispatch order statuses" });
+    } finally {
+        if (connection) await connection.close();
+    }
+});
+
+
 router.get("/customers", async (req, res) => {
     let connection;
     try {
@@ -32,6 +73,53 @@ router.get("/customers", async (req, res) => {
 });
 
 
+// ── Get next record ── (must be before /:id)
+router.get("/next/:id", async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
+        const result = await connection.execute(
+            `SELECT ORDERID, CUSTOMERID, DISPATCHDATE, SOURCE, DESTINATION, STATUS FROM DISPATCHORDER WHERE ORDERID = (SELECT MIN(ORDERID) FROM DISPATCHORDER WHERE ORDERID > :1)`,
+            [req.params.id]
+        );
+        if (!result.rows || result.rows.length === 0) {
+            return res.status(404).json({ message: "No more sequential records found" });
+        }
+        const row = result.rows[0];
+        res.json({ orderId: row[0], customerId: row[1], dispatchDate: row[2], source: row[3], destination: row[4], status: row[5] });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Pagination engine failure" });
+    } finally {
+        if (connection) await connection.close();
+    }
+});
+
+
+// ── Get previous record ──
+router.get("/previous/:id", async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
+        const result = await connection.execute(
+            `SELECT ORDERID, CUSTOMERID, DISPATCHDATE, SOURCE, DESTINATION, STATUS FROM DISPATCHORDER WHERE ORDERID = (SELECT MAX(ORDERID) FROM DISPATCHORDER WHERE ORDERID < :1)`,
+            [req.params.id]
+        );
+        if (!result.rows || result.rows.length === 0) {
+            return res.status(404).json({ message: "No prior sequential records found" });
+        }
+        const row = result.rows[0];
+        res.json({ orderId: row[0], customerId: row[1], dispatchDate: row[2], source: row[3], destination: row[4], status: row[5] });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Pagination engine failure" });
+    } finally {
+        if (connection) await connection.close();
+    }
+});
+
+
+// ── Get by ID ──
 router.get("/:id", async (req, res) => {
     let connection;
     try {
@@ -175,67 +263,6 @@ router.put("/:id", async (req, res) => {
             success: false, 
             message: "Database update failed" 
         });
-    } finally {
-        if (connection) await connection.close();
-    }
-});
-
-router.get("/next/:id", async (req, res) => {
-    let connection;
-    try {
-        connection = await getConnection();
-        const result = await connection.execute(
-            `SELECT ORDERID, CUSTOMERID, DISPATCHDATE, SOURCE, DESTINATION, STATUS FROM DISPATCHORDER WHERE ORDERID = (SELECT MIN(ORDERID) FROM DISPATCHORDER WHERE ORDERID > :1)`,
-            [req.params.id]
-        );
-
-        if (!result.rows || result.rows.length === 0) {
-            return res.status(404).json({ message: "No more sequential records found" });
-        }
-
-        const row = result.rows[0];
-        res.json({
-            orderId: row[0],
-            customerId: row[1],
-            dispatchDate: row[2],
-            source: row[3],
-            destination: row[4],
-            status: row[5]
-        });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ message: "Pagination engine failure" });
-    } finally {
-        if (connection) await connection.close();
-    }
-});
-
-
-router.get("/previous/:id", async (req, res) => {
-    let connection;
-    try {
-        connection = await getConnection();
-        const result = await connection.execute(
-            `SELECT ORDERID, CUSTOMERID, DISPATCHDATE, SOURCE, DESTINATION, STATUS FROM DISPATCHORDER WHERE ORDERID = (SELECT MAX(ORDERID) FROM DISPATCHORDER WHERE ORDERID < :1)`,
-            [req.params.id]
-        );
-
-        if (!result.rows || result.rows.length === 0) {
-            return res.status(404).json({ message: "No prior sequential records found" });
-        }
-
-        const row = result.rows[0];
-        res.json({
-            orderId: row[0],
-            customerId: row[1],
-            dispatchDate: row[2],
-            source: row[3],
-            destination: row[4],
-            status: row[5]
-        });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ message: "Pagination engine failure" });
     } finally {
         if (connection) await connection.close();
     }
