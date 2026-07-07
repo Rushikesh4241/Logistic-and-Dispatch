@@ -4,104 +4,155 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Driver Registration Form</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="../CSS/vehicle.css?v=2">
+        <title>Driver Master Entry</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+        <style>
+            body {
+                background-color: #f9f9f9;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            .main-form {
+                /* height: 90vh; */
+                width: 90vw;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .main-text {
+                background-color: #5b2e8a;
+            }
+
+            button span {
+                display: none;
+            }
+
+            button:hover span {
+                display: inline !important;
+            }
+
+            .form-label {
+                font-weight: bold;
+            }
+
+            .toggle-container {
+                padding: 2px;
+                border-radius: 30px;
+                display: inline-flex;
+                overflow: hidden;
+                background-color: #fff;
+            }
+
+            .toggle-btn {
+                border: none;
+                background: none;
+                padding: 6px 24px;
+                font-weight: bold;
+                color: #5b2e8a;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+            .toggle-btn.active {
+                background-color: #5b2e8a;
+                color: #fff;
+            }
+
+            .form-control:disabled {
+                background-color: #e9ecef !important;
+                cursor: not-allowed !important;
+                opacity: 0.8;
+            }
+
+            /* Custom red alert banner border exactly matching the uploaded snapshot layout */
+            .custom-alert-box {
+                border: 1px solid #f5c2c7 !important;
+                background-color: #f8d7da !important;
+                color: #842029 !important;
+                border-radius: 10px;
+                padding: 5px 5px 5px 15px;
+                margin-left: 135px;
+                font-weight: 500;
+                font-size: 0.95rem;
+                display: none;
+                max-width: 350px;
+            }
+        </style>
     </head>
 
-    <body>
+    <body class="bg-primary-subtle d-flex align-items-center justify-content-center py-5">
 
-        <div class="container">
-            <header class="page-header">
-                <h1>Logistic and Dispatch Management System</h1>
-                <h2>Driver Master Entry</h2>
-            </header>
+        <div class="main-form border rounded-5 p-5 shadow-lg bg-white mx-auto">
+            <div class="row m-0">
+                <div class="col p-0">
+                    <div class="d-flex justify-content-center mb-2">
+                        <h1 class="main-text fw-bold text-white px-5 py-3 rounded-3 text-center fs-2 shadow-sm">Logistic and Dispatch Management System</h1>
+                    </div>
+                    <div class="d-flex justify-content-center mb-4">
+                        <h4 class="main-text fw-bold text-white px-5 py-2 rounded-3 text-center fs-3 shadow-sm">Driver Master Entry</h4>
+                    </div>
 
-            <main class="form-wrap">
-                <form id="driver-form" class="driver-form">
-                    <div class="row">
-                        <label for="driver-id" class="field-label">Driver ID : <span class="required">*</span></label>
-                        <div class="field-col">
-                            <div class="field-inline">
-                                <input type="number" id="driver-id" class="field-input small" style="width: 150px;" />
-                                <div class="btn-group-inline">
-                                    <div class="mode-toggle" id="mode-toggle">
-                                        <input type="radio" name="form-mode" id="mode-find" value="find" checked />
-                                        <label for="mode-find">Find</label>
-                                        <input type="radio" name="form-mode" id="mode-new" value="new" />
-                                        <label for="mode-new">New</label>
-                                        <span class="slider"></span>
+                    <form id="driver-form">
+
+                        <div class="mb-5 px-5 py-5 rounded-5 shadow-lg" style="background-color: #F3EAF9;">
+
+                            <div id="fetch-id-wrapper" class="d-flex flex-column mb-4">
+                                <div id="fetch-id" class="d-flex align-items-center text-nowrap gap-3">
+                                    <label for="id" class="form-label mb-0" style="width: 120px;">Driver ID: <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="id" style="width: 120px;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="toggle-container border">
+                                            <button type="button" id="toggle-find" class="toggle-btn rounded-pill active">Find</button>
+                                            <button type="button" id="toggle-new" class="toggle-btn rounded-pill">New</button>
+                                        </div>
                                     </div>
-                                    <button type="button" class="info-btn" id="mode-info-btn" title="Find: enter ID to search. New: start a fresh entry.">i</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" data-bs-toggle="tooltip" title="Input target ID or use the navigation dashboard.">i</button>
                                 </div>
+                                
+                                <div id="id-db-feedback" class="custom-alert-box mt-3"></div>
                             </div>
-                            <!-- Inline alert shown when ID is not found (Find mode) -->
-                            <div class="id-alert" id="id-alert" style="display:none;"></div>
+
+                            <div class="mb-4 d-flex align-items-center text-nowrap gap-3">
+                                <label for="name" class="form-label mb-0" style="width: 120px;">Full Name: <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" style="width: 350px; max-width: 100%;">
+                            </div>
+
+                            <div class="mb-4 d-flex align-items-start text-nowrap gap-3">
+                                <label for="phone" class="form-label pt-1 mb-0" style="width: 120px;">Phone: </label>
+                                <textarea class="form-control" id="phone" rows="3" style="width: 500px; max-width: 100%;"></textarea>
+                            </div>
+
+                            <div class="mb-2 d-flex align-items-center text-nowrap gap-3">
+                                <label for="license" class="form-label mb-0" style="width: 120px;">License Number: </label>
+                                <input type="text" class="form-control" id="license" style="width: 220px; max-width: 100%;">
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row">
-                        <label for="driver-name" class="field-label">Full Name :<span class="required">*</span></label>
-                        <div class="field-inline">
-                            <input type="text" id="driver-name" class="field-input large" style="width: 200px;" />
+                        <div class="mb-3 d-flex justify-content-center mx-auto gap-3 pt-2">
+                            <button type="button" class="btn btn-warning rounded-3 px-3 fw-bold text-dark" id="action-btn">Update</button>
+
+                            <div class="gap-1 d-flex">
+                                <button type="button" class="btn btn-primary rounded-3 d-inline-flex align-items-center gap-1" id="previous-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-step-back"><path d="M13.971 4.285A2 2 0 0 1 17 6v12a2 2 0 0 1-3.029 1.715l-9.997-5.998a2 2 0 0 1-.003-3.432z" /><path d="M21 20V4" /></svg>
+                                    <span>Previous</span>
+                                </button>
+                                <button type="button" class="btn btn-primary rounded-3 d-inline-flex align-items-center gap-1" id="next-btn">
+                                    <span>Next</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-step-forward"><path d="M10.029 4.285A2 2 0 0 0 7 6v12a2 2 0 0 0 3.029 1.715l9.997-5.998a2 2 0 0 0 .003-3.432z" /><path d="M3 4v16" /></svg>
+                                </button>
+                            </div>
+                            <a href="admin-dashboard.html" class="btn bg-danger-subtle text-danger border border-danger-subtle rounded-3 px-4 d-flex align-items-center">Exit</a>
                         </div>
-                    </div>
-
-                     <div class="row">
-                        <label for="driver-phone" class="field-label">Phone :<span class="required">*</span></label>
-                        <div class="field-inline">
-                            <input type="text" id="driver-phone" class="field-input large" style="width: 200px;" />
-                        </div>
-                    </div>
-
-                    
-
-                    <div class="row">
-                        <label for="license" class="field-label">Licence-Number</label>
-                        <div class="field-inline">
-                            <input type="license" id="license" class="field-input medium" style="width: 150px;" />
-                        </div>
-                    </div>
-
-                    
-                </form>
-            </main>
-
-            <!-- ── Action Buttons ── -->
-            <div class="row actions">
-                <!-- Save / Update on the left group -->
-                <div class="btn-group-actions">
-                    <button type="button" class="btn btn-save" id="save-btn">
-                        <span class="btn-icon"></span> Save
-                    </button>
-                    <button type="button" class="btn btn-update" id="update-btn">
-                         Update
-                    </button>
+                    </form>
                 </div>
-
-                <!-- Navigation group: Previous + Next together -->
-                <div class="btn-group-nav">
-                    <button type="button" class="btn btn-prev" id="previous-btn">
-                        ◀ Previous
-                    </button>
-                    <button type="button" class="btn btn-next" id="next-btn">
-                        Next ▶
-                    </button>
-                </div>
-
-                <!-- Navigation end-of-list message -->
-                <div class="nav-end-msg" id="nav-end-msg" style="display:none;"></div>
-
-                <!-- Exit -->
-                <a href="admin-dashboard.html" class="btn btn-exit" id="exit-btn"> Exit</a>
             </div>
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script src="../JS/driver.js?v=2"></script>
+        <script src="../JS/driver.js"></script>
     </body>
 
 </html>
