@@ -78,17 +78,20 @@ async function getNextDeliveryId() {
     }
 }
 
-// Do not auto-fetch when typing an ID — only clear when emptied.
-deliveryId.addEventListener("input", () => {
+deliveryId.addEventListener("input", async () => {
+    if (!findMode) return;
+
     const id = deliveryId.value.trim();
     if (!id) {
         clearFields();
-        if (findMode) {
-            toggleFormMode(false);
-        }
+        toggleFormMode(false);
+        return;
     }
+
+    await lookupDeliveryById();
 });
 
+// also support Enter and blur for faster form interaction
 deliveryId.addEventListener("keydown", async (event) => {
     if (findMode && event.key === "Enter") {
         event.preventDefault();
