@@ -4,19 +4,19 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Dispatch Assignment</title>
+        <title>Dispatch Assignment Entry</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
         <style>
             body {
                 background-color: #f9f9f9;
                 font-family: Arial, Helvetica, sans-serif;
-                overflow-y: hidden; 
+                overflow-y: hidden;
             }
 
             .main-form {
                 width: 90vw;
-                height: 90vh; 
+                height: 90vh;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -53,7 +53,8 @@
                 color: #fff;
             }
 
-            .form-control:disabled, .lov-input:disabled {
+            .form-control:disabled,
+            .lov-input:disabled {
                 background-color: #e9ecef !important;
                 cursor: not-allowed !important;
                 opacity: 0.8;
@@ -64,11 +65,15 @@
                 margin-bottom: 2.5rem !important;
             }
 
+            .div-form {
+                font-size: 18px;
+            }
+
             .custom-alert-box {
                 position: absolute;
-                top: 100%; 
+                top: 100%;
                 left: 155px;
-                z-index: 10; 
+                z-index: 10;
                 border: 1px solid #f5c2c7 !important;
                 background-color: #f8d7da !important;
                 color: #842029 !important;
@@ -82,18 +87,22 @@
             }
 
             /* Hides up-down counter spin fields */
-            input[type=number]::-webkit-inner-spin-button, 
-            input[type=number]::-webkit-outer-spin-button { 
-                -webkit-appearance: none; 
-                margin: 0; 
+            input[type=number]::-webkit-inner-spin-button,
+            input[type=number]::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
             }
-            input[type=number] { -moz-appearance: textfield; }
+
+            input[type=number] {
+                -moz-appearance: textfield;
+            }
 
             /* Search Dropdown Layout Overrides */
             .lov-container {
                 position: relative;
                 width: 250px;
             }
+
             .lov-input {
                 background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
                 background-repeat: no-repeat;
@@ -101,6 +110,7 @@
                 background-size: 16px 12px;
                 cursor: pointer;
             }
+
             .lov-dropdown {
                 position: absolute;
                 top: 100%;
@@ -112,24 +122,32 @@
                 border-radius: 8px;
                 max-height: 220px;
                 overflow-y: auto;
+                overflow-x: hidden;
                 display: none;
-                box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
                 padding: 8px;
             }
-            .lov-dropdown.table-wide {
-                width: 520px !important;
+
+            /* --- SPECIFIC WIDTH LAYOUT OVERRIDES --- */
+            .lov-dropdown.order-table-wide {
+                width: 800px !important;       /* Explicitly locked to 800px to show all columns natively */
+                overflow-x: auto !important;
             }
-            .lov-list-item {
-                padding: 6px 12px;
-                cursor: pointer;
-                border-radius: 4px;
+
+            .lov-dropdown.vehicle-table-wide {
+                width: 520px !important;       /* Restored to target required content dimension bounds */
+                overflow-x: auto !important;
             }
-            .lov-list-item:hover {
-                background-color: #F3EAF9;
+            
+            .lov-dropdown table {
+                min-width: 100%;
+                margin-bottom: 0;
             }
+
             .lov-table-row {
                 cursor: pointer;
             }
+
             .lov-table-row:hover {
                 background-color: #F3EAF9 !important;
             }
@@ -149,11 +167,11 @@
                     </div>
 
                     <form id="dispatch-assignment-form">
-                        <div class="mb-5 px-5 py-4 rounded-5 shadow-lg" style="background-color: #F3EAF9;">
+                        <div class="div-form mb-5 px-5 py-4 rounded-5 shadow-lg" style="background-color: #F3EAF9;">
 
                             <div id="fetch-id-wrapper" class="d-flex flex-column mt-3 mb-5">
                                 <div id="fetch-id" class="d-flex align-items-center text-nowrap gap-3">
-                                    <label for="assignment-id" class="form-label mb-0" style="width: 140px;">Assignment ID: <span class="text-danger">*</span></label>
+                                    <label for="assignment-id" class="form-label mb-0" style="width: 160px;">Assignment ID: <span class="text-danger">*</span></label>
                                     <input type="number" class="form-control" id="assignment-id" style="width: 120px;">
                                     <div class="d-flex align-items-center">
                                         <div class="toggle-container border">
@@ -168,41 +186,60 @@
 
                             <div class="d-flex gap-5 mb-5" style="margin-top: 25px;">
                                 <div class="d-flex align-items-center text-nowrap gap-3">
-                                    <label class="form-label mb-0" style="width: 140px;">Order ID: <span class="text-danger">*</span></label>
+                                    <label class="form-label mb-0" style="width: 160px;">Order ID: <span class="text-danger">*</span></label>
                                     <div class="lov-container">
                                         <input type="text" class="form-control lov-input" id="order-id" placeholder="Select Order" readonly>
-                                        <div class="lov-dropdown" id="order-dropdown">
-                                            <input type="text" class="form-control form-control-sm mb-2 lov-search" placeholder="Search Order ID...">
-                                            <div class="lov-list" id="order-list"></div>
+                                        <div class="lov-dropdown order-table-wide" id="order-dropdown">
+                                            <input type="text" class="form-control form-control-sm mb-2 lov-search" placeholder="Search orders by id, date, source, destination...">
+                                            <table class="table table-sm table-bordered table-striped mt-1 rounded-3 text-center small">
+                                                <thead class="table-dark">
+                                                    <tr>
+                                                        <th>Order ID</th>
+                                                        <th>Cust. ID</th>
+                                                        <th>Dispatch Date</th>
+                                                        <th>Route (Source &rarr; Dest)</th>
+                                                        <th>Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="order-table-body"></tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="d-flex align-items-center text-nowrap gap-3">
-                                    <label for="date-time" class="form-label mb-0" style="width: 100px;">Date :</label>
+                                    <label for="date-time" class="form-label mb-0" style="width: 120px;">Date :</label>
                                     <input type="date" class="form-control" id="date-time" style="width: 200px; max-width: 100%;">
                                 </div>
                             </div>
                             
                             <div class="d-flex gap-5 mb-4">
                                 <div class="d-flex align-items-center text-nowrap gap-3">
-                                    <label class="form-label mb-0" style="width: 140px;">Driver ID: <span class="text-danger">*</span></label>
+                                    <label class="form-label mb-0" style="width: 160px;">Driver ID: <span class="text-danger">*</span></label>
                                     <div class="lov-container">
                                         <input type="text" class="form-control lov-input" id="driver-id" placeholder="Select Driver" readonly>
                                         <div class="lov-dropdown" id="driver-dropdown">
                                             <input type="text" class="form-control form-control-sm mb-2 lov-search" placeholder="Search Driver...">
-                                            <div class="lov-list" id="driver-list"></div>
+                                            <table class="table table-sm table-bordered table-striped mt-1 rounded-3 overflow-hidden text-center small">
+                                                <thead class="table-dark">
+                                                    <tr>
+                                                        <th>Driver ID</th>
+                                                        <th>Driver Name</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="driver-table-body"></tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="d-flex align-items-center text-nowrap gap-3">
-                                    <label class="form-label mb-0" style="width: 100px;">Vehicle ID: <span class="text-danger">*</span></label>
+                                    <label class="form-label mb-0" style="width: 120px;">Vehicle ID: <span class="text-danger">*</span></label>
                                     <div class="lov-container">
                                         <input type="text" class="form-control lov-input" id="vehicle-id" placeholder="Select Vehicle" readonly>
-                                        <div class="lov-dropdown table-wide" id="vehicle-dropdown">
-                                            <input type="text" class="form-control form-control-sm mb-2 lov-search" placeholder="Search by ID...">
+                                        <div class="lov-dropdown vehicle-table-wide" id="vehicle-dropdown">
+                                            <input type="text" class="form-control form-control-sm mb-2 lov-search" placeholder="Search Vehicle ID...">
                                             <table class="table table-sm table-bordered table-striped mt-1 rounded-3 overflow-hidden text-center small">
-                                                <thead class="table-white">
+                                                <thead class="table-dark">
                                                     <tr>
                                                         <th>ID</th>
                                                         <th>Vehicle Number</th>
@@ -219,37 +256,26 @@
                         </div>
 
                         <div class="mb-2 d-flex justify-content-center mx-auto gap-3 pt-2">
-                            <button type="button" class="btn btn-warning rounded-3 px-4 fw-bold text-dark"
-                                id="action-btn">Update</button>
+                            <button type="button" class="btn btn-lg fs-5 btn-warning rounded-3 px-4 fw-bold text-dark" id="action-btn">Update</button>
 
                             <div class="btn-group rounded-pill overflow-hidden gap-1">
-                                <button type="button"
-                                    class="btn btn-primary text-white d-inline-flex align-items-center gap-2"
-                                    id="previous-btn">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="18" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" class="lucide lucide-step-back">
-                                        <path
-                                            d="M13.971 4.285A2 2 0 0 1 17 6v12a2 2 0 0 1-3.029 1.715l-9.997-5.998a2 2 0 0 1-.003-3.432z" />
+                                <button type="button" class="btn btn-lg btn-primary text-white d-inline-flex align-items-center gap-2" id="previous-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-step-back">
+                                        <path d="M13.971 4.285A2 2 0 0 1 17 6v12a2 2 0 0 1-3.029 1.715l-9.997-5.998a2 2 0 0 1-.003-3.432z" />
                                         <path d="M21 20V4" />
                                     </svg>
-                                    <span style="display: inline !important; font-weight: bold;">Previous</span>
+                                    <span style="font-weight: bold;">Previous</span>
                                 </button>
-                                <button type="button" class="btn btn-primary text-white d-inline-flex align-items-center gap-2 px-4"
-                                    id="next-btn">
-                                    <span style="display: inline !important; font-weight: bold;">Next</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="18" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" class="lucide lucide-step-forward">
-                                        <path
-                                            d="M10.029 4.285A2 2 0 0 0 7 6v12a2 2 0 0 0 3.029 1.715l9.997-5.998a2 2 0 0 0 .003-3.432z" />
+                                <button type="button" class="btn btn-lg btn-primary text-white d-inline-flex align-items-center gap-2 px-4" id="next-btn">
+                                    <span style="font-weight: bold;">Next</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-step-forward">
+                                        <path d="M10.029 4.285A2 2 0 0 0 7 6v12a2 2 0 0 0 3.029 1.715l9.997-5.998a2 2 0 0 0 .003-3.432z" />
                                         <path d="M3 4v16" />
                                     </svg>
                                 </button>
                             </div>
 
-                            <a href="admin-dashboard.html"
-                                class="btn bg-danger-subtle text-danger border border-danger-subtle rounded-3 px-4 d-flex align-items-center fw-bold">Exit</a>
+                            <a href="admin-dashboard.html" class="btn btn-lg bg-danger-subtle text-danger border border-danger-subtle rounded-3 px-4 d-flex align-items-center fw-bold">Exit</a>
                         </div>
                     </form>
                 </div>

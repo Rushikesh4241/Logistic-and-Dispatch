@@ -22,13 +22,28 @@ router.get("/orders", async (req, res) => {
     let connection;
     try {
         connection = await getConnection();
-        const result = await connection.execute(`SELECT ORDERID FROM DISPATCHORDER ORDER BY ORDERID`);
-        const orders = result.rows.map(row => ({ orderId: row[0] }));
+
+        // Query matches the precise columns in your custom DispatchOrder DDL definition
+        const result = await connection.execute(
+            `SELECT ORDERID, CUSTOMERID, TO_CHAR(DISPATCHDATE, 'YYYY-MM-DD'), SOURCE, DESTINATION, STATUS FROM DISPATCHORDER ORDER BY ORDERID`
+        );
+
+        const orders = result.rows.map(row => ({
+            orderId: row[0],
+            customerId: row[1],
+            dispatchDate: row[2],
+            source: row[3],
+            destination: row[4],
+            status: row[5]
+        }));
+        
         res.json(orders);
-    } catch (err) {
+    } 
+    catch (err) {
         console.error(err);
-        res.status(500).json({ message: "Failed to load orders" });
-    } finally {
+        return res.status(500).json({ message: "Failed to pull rich dispatch order records" });
+    } 
+    finally {
         if (connection) await connection.close();
     }
 });

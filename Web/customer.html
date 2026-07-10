@@ -32,6 +32,10 @@
                 font-weight: bold;
             }
 
+            .div-form {
+                font-size: 18px;
+            }
+
             .toggle-container {
                 padding: 2px;
                 border-radius: 30px;
@@ -114,11 +118,11 @@
 
                     <form id="customer-form">
 
-                        <div class="mb-5 px-5 py-4 rounded-5 shadow-lg" style="background-color: #F3EAF9;">
+                        <div class="div-form mb-5 px-5 py-4 rounded-5 shadow-lg" style="background-color: #F3EAF9;">
 
                             <div id="fetch-id-wrapper" class="d-flex flex-column mb-4">
                                 <div id="fetch-id" class="d-flex align-items-center text-nowrap gap-3">
-                                    <label for="id" class="form-label mb-0" style="width: 120px;">Customer ID: <span
+                                    <label for="id" class="form-label mb-0" style="width: 150px;">Customer ID: <span
                                             class="text-danger">*</span></label>
                                     <input type="number" class="form-control" id="id" style="width: 120px;">
                                     <div class="d-flex align-items-center">
@@ -139,14 +143,14 @@
                             </div>
 
                             <div class="mb-4 d-flex align-items-center text-nowrap gap-3" style="margin-top: 25px;">
-                                <label for="name" class="form-label mb-0" style="width: 120px;">Full Name: <span
+                                <label for="name" class="form-label mb-0" style="width: 150px;">Full Name: <span
                                         class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="name"
                                     style="width: 350px; max-width: 100%;">
                             </div>
 
                             <div class="mb-4 d-flex align-items-start text-nowrap gap-3">
-                                <label for="address" class="form-label pt-1 mb-0" style="width: 120px;">Address:
+                                <label for="address" class="form-label pt-1 mb-0" style="width: 150px;">Address:
                                 </label>
                                 <textarea class="form-control" id="address" rows="3"
                                     style="width: 500px; max-width: 100%;"></textarea>
@@ -154,20 +158,20 @@
 
                             <div class="mb-4 d-flex flex-column">
                                 <div class="d-flex align-items-center text-nowrap gap-3">
-                                    <label for="phone" class="form-label mb-0" style="width: 120px;">Phone: </label>
-                                    <input type="text" class="form-control" id="phone" style="width: 220px; max-width: 100%;" maxlength="10">
+                                    <label for="phone" class="form-label mb-0" style="width: 150px;">Phone: </label>
+                                    <input type="text" class="form-control" id="phone" style="width: 150px; max-width: 100%;" maxlength="10">
                                 </div>
                                 <div id="phone-db-feedback" class="custom-alert-box mt-1"></div>
                             </div>
                         </div>
 
                         <div class="mb-2 d-flex justify-content-center mx-auto gap-3 pt-2">
-                            <button type="button" class="btn btn-warning rounded-3 px-4 fw-bold text-dark"
+                            <button type="button" class="btn btn-lg fs-5 btn-warning rounded-3 px-4 fw-bold text-dark"
                                 id="action-btn">Update</button>
 
                             <div class="btn-group rounded-pill overflow-hidden gap-1">
                                 <button type="button"
-                                    class="btn btn-primary text-white d-inline-flex align-items-center gap-2"
+                                    class="btn btn-lg btn-primary text-white d-inline-flex align-items-center gap-2"
                                     id="previous-btn">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="18" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -178,7 +182,7 @@
                                     </svg>
                                     <span style="display: inline !important; font-weight: bold;">Previous</span>
                                 </button>
-                                <button type="button" class="btn btn-primary text-white d-inline-flex align-items-center gap-2 px-4"
+                                <button type="button" class="btn btn-lg btn-primary text-white d-inline-flex align-items-center gap-2 px-4"
                                     id="next-btn">
                                     <span style="display: inline !important; font-weight: bold;">Next</span>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="18" viewBox="0 0 24 24"
@@ -192,7 +196,7 @@
                             </div>
 
                             <a href="admin-dashboard.html"
-                                class="btn bg-danger-subtle text-danger border border-danger-subtle rounded-3 px-4 d-flex align-items-center fw-bold">Exit</a>
+                                class="btn btn-lg bg-danger-subtle text-danger border border-danger-subtle rounded-3 px-4 d-flex align-items-center fw-bold">Exit</a>
                         </div>
                     </form>
                 </div>
