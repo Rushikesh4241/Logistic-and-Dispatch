@@ -111,7 +111,7 @@ async function setFormMode(mode) {
     toggleFind.classList.remove("active");
 
     actionBtn.innerText = "Save";
-    actionBtn.className = "btn fs-5 btn-success rounded-3 px-4 fw-bold";
+    actionBtn.className = "btn btn-success rounded-3 px-4 fw-bold";
 
     nextBtn.classList.add("d-none");
 
@@ -134,7 +134,7 @@ async function setFormMode(mode) {
     toggleNew.classList.remove("active");
 
     actionBtn.innerText = "Update";
-    actionBtn.className = "btn fs-5 btn-warning rounded-3 px-4 fw-bold text-dark";
+    actionBtn.className = "btn btn-warning rounded-3 px-4 fw-bold text-dark";
 
     nextBtn.classList.remove("d-none");
 
