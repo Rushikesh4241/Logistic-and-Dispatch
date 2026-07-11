@@ -109,18 +109,29 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST (INSERT NEW CUSTOMER)
+// POST (INSERT NEW DRIVER)
 router.post("/", async (req, res) => {
     let connection;
     try {
         const { driverName, driverPhone, licenseNumber } = req.body;
         connection = await getConnection();
+
+        // 1. Get the exact next ID
+        const maxResult = await connection.execute(
+            `SELECT NVL(MAX(DRIVERID), 0) + 1 FROM DRIVER`
+        );
+        const nextId = maxResult.rows[0][0];
+
+        // 2. Explicitly insert DRIVERID
         await connection.execute(
-            `INSERT INTO DRIVER(DRIVERNAME, PHONE,LICENSENUMBER) VALUES (:1, :2, :3)`, 
-            [driverName, driverPhone, licenseNumber],
+            `INSERT INTO DRIVER(DRIVERID, DRIVERNAME, PHONE, LICENSENUMBER) VALUES (:1, :2, :3, :4)`, 
+            [nextId, driverName, driverPhone, licenseNumber],
             { autoCommit: true }
         );
-        res.json({ success: true, message: "Driver Added Successfully" });
+
+        res.json({ success: true, message: `Driver Added Successfully with ID ${nextId}` });
     } catch(err) {
+        console.error(err);
         res.status(500).json({ success: false, message: "An error occurred during creation" });
     } finally {
         if (connection) await connection.close();
