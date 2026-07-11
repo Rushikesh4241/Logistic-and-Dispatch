@@ -177,23 +177,36 @@ actionBtn.addEventListener("click", async () => {
         } catch (err) { console.error(err); }
 
     // HANDLER FOR SAVE ROUTE
-    } else {
-        try {
-            const response = await fetch(API_BASE_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    driverName: driverName.value.trim(),
-                    driverPhone: driverPhone.value.trim(),
-                    licenseNumber: licenseNumber.value.trim()
-                })
-            });
-            const data = await response.json();
-            Swal.fire({ icon: "success", title: data.message || "Driver Registered Successfully", timer: 1500, showConfirmButton: false });
-            clearFields();
-            setFormMode("FIND");
-        } catch (err) { console.error(err); }
+    // Inside actionBtn click event (under the POST handler / ELSE branch):
+} else {
+    try {
+        const response = await fetch(API_BASE_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                driverName: driverName.value.trim(),
+                driverPhone: driverPhone.value.trim(),
+                licenseNumber: licenseNumber.value.trim()
+            })
+        });
+        
+        const data = await response.json();
+        
+        Swal.fire({ 
+            icon: "success", 
+            title: data.message || "Driver Registered Successfully", 
+            timer: 1500, 
+            showConfirmButton: false 
+        });
+
+        // Clear and switch back to FIND mode
+        clearFields();
+        await setFormMode("FIND");
+
+    } catch (err) { 
+        console.error(err); 
     }
+}
 });
 
 // Guardrail checking modifications safety boundaries

@@ -10,15 +10,20 @@
         <style>
             body {
                 background-color: #f9f9f9;
-                font-family: Arial, Helvetica, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
             }
 
             .main-form {
                 /* height: 90vh; */
-                width: 90vw;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
+                height: 90vh; /* Keeps the inner container bounded safely inside the viewport */
+    width: 90vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centers items cleanly inside the box layout vertically */
+    align-items: center;
             }
 
             .main-text {
@@ -74,9 +79,9 @@
         </style>
     </head>
 
-    <body class="bg-primary-subtle d-flex align-items-center justify-content-center py-5">
+    <body class="bg-primary-subtle d-flex align-items-center justify-content-center vh-100">
 
-        <div class="main-form border rounded-5 p-5 shadow-lg bg-white mx-auto">
+        <div class="main-form border rounded-5 p-4 shadow-lg bg-white mx-auto">
             <div class="row m-0">
                 <div class="col p-0">
                     <div class="d-flex justify-content-center mb-2">
@@ -88,38 +93,38 @@
 
                     <form id="driver-form">
 
-                        <div class="mb-5 px-5 py-5 rounded-5 shadow-lg" style="background-color: #F3EAF9;">
+                        <div class="mb-4 px-5 py-4 rounded-5 shadow-lg" style="background-color: #F3EAF9;">
 
                             <div id="fetch-id-wrapper" class="d-flex flex-column mb-4">
-                                <div id="fetch-id" class="d-flex align-items-center text-nowrap gap-3">
-                                    <label for="id" class="form-label mb-0" style="width: 120px;">Driver ID: <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="id" style="width: 120px;">
-                                    <div class="d-flex align-items-center">
-                                        <div class="toggle-container border">
-                                            <button type="button" id="toggle-find" class="toggle-btn rounded-pill active">Find</button>
-                                            <button type="button" id="toggle-new" class="toggle-btn rounded-pill">New</button>
-                                        </div>
-                                    </div>
-                                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" data-bs-toggle="tooltip" title="Input target ID or use the navigation dashboard.">i</button>
-                                </div>
-                                
-                                <div id="id-db-feedback" class="custom-alert-box mt-3"></div>
-                            </div>
+    <div id="fetch-id" class="d-flex align-items-center text-nowrap gap-3">
+        <label for="id" class="form-label mb-0" style="width: 140px;">Driver ID: <span class="text-danger">*</span></label>
+        <input type="number" class="form-control" id="id" style="width: 120px;">
+        <div class="d-flex align-items-center">
+            <div class="toggle-container border">
+                <button type="button" id="toggle-find" class="toggle-btn rounded-pill active">Find</button>
+                <button type="button" id="toggle-new" class="toggle-btn rounded-pill">New</button>
+            </div>
+        </div>
+        <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;" data-bs-toggle="tooltip" title="Input target ID or use the navigation dashboard.">i</button>
+    </div>
+    
+    <div id="id-db-feedback" class="custom-alert-box mt-3"></div>
+</div>
 
                             <div class="mb-4 d-flex align-items-center text-nowrap gap-3">
-                                <label for="name" class="form-label mb-0" style="width: 120px;">Full Name: <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="name" style="width: 350px; max-width: 100%;">
-                            </div>
-
-                            <div class="mb-4 d-flex align-items-start text-nowrap gap-3">
-                                <label for="phone" class="form-label pt-1 mb-0" style="width: 120px;">Phone: </label>
-                                <textarea class="form-control" id="phone" rows="3" style="width: 500px; max-width: 100%;"></textarea>
-                            </div>
+    <label for="name" class="form-label mb-0" style="width: 140px;">Full Name: <span class="text-danger">*</span></label>
+    <input type="text" class="form-control" id="name" style="width: 350px; max-width: 100%;">
+</div>
 
                             <div class="mb-2 d-flex align-items-center text-nowrap gap-3">
-                                <label for="license" class="form-label mb-0" style="width: 120px;">License Number: </label>
-                                <input type="text" class="form-control" id="license" style="width: 220px; max-width: 100%;">
-                            </div>
+    <label for="phone" class="form-label mb-0" style="width: 140px;">Phone Number: <span class="text-danger">*</span></label>
+    <input type="text" class="form-control" id="phone" style="width: 220px; max-width: 100%;">
+</div>
+
+                            <div class="mb-2 d-flex align-items-center text-nowrap gap-3">
+    <label for="license" class="form-label mb-0" style="width: 140px;">License Number: <span class="text-danger">*</span></label>
+    <input type="text" class="form-control" id="license" style="width: 220px; max-width: 100%;">
+</div>
                         </div>
 
                          <div class="mb-2 d-flex justify-content-center mx-auto gap-3 pt-2">
