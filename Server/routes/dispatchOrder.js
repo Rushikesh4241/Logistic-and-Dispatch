@@ -53,19 +53,16 @@ router.get("/customers", async (req, res) => {
             `SELECT CUSTOMERID, CUSTOMERNAME FROM CUSTOMER ORDER BY CUSTOMERID`
         );
 
-        let htmlString = '<option value="">Select Customer</option>';
+        const customers = (result.rows || []).map(row => ({
+            customerId  : row[0],
+            customerName: row[1]
+        }));
 
-        if (result.rows && result.rows.length > 0) {
-            result.rows.forEach(row => {
-                htmlString += `<option value="${row[0]}">${row[0]} - ${row[1]}</option>`;
-            });
-        }
-        res.setHeader('Content-Type', 'text/html');
-        res.status(200).send(htmlString);
+        res.json(customers);
     } 
     catch (err) {
         console.error(err);
-        return res.status(500).send('<option value="">Error Loading Customers</option>');
+        return res.status(500).json({ message: "Error Loading Customers" });
     } 
     finally {
         if (connection) await connection.close();

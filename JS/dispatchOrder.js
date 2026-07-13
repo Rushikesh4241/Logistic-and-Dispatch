@@ -6,12 +6,13 @@
    ========================================================= */
 
 // ── DOM refs ──────────────────────────────────────────────────
-const orderId      = document.getElementById("order-id");
-const customerId   = document.getElementById("customer-id");
-const dispatchDate = document.getElementById("dispatch-date");
-const source       = document.getElementById("source");
-const destination  = document.getElementById("destination");
-const status       = document.getElementById("status");
+const orderId           = document.getElementById("order-id");
+const customerId        = document.getElementById("customer-id");         // hidden value
+const customerIdDisplay = document.getElementById("customer-id-display"); // visible LOV input
+const dispatchDate      = document.getElementById("dispatch-date");
+const source            = document.getElementById("source");
+const destination       = document.getElementById("destination");
+const status            = document.getElementById("status");
 
 const saveBtn     = document.getElementById("save-btn");
 const updateBtn   = document.getElementById("update-btn");
@@ -106,10 +107,11 @@ function setFormMode(isUpdate) {
 }
 
 function clearFields() {
-  customerId.value   = "";
-  dispatchDate.value = "";
-  source.value       = "";
-  destination.value  = "";
+  customerId.value        = "";
+  customerIdDisplay.value = "";
+  dispatchDate.value      = "";
+  source.value            = "";
+  destination.value       = "";
   // Keep first LOV option (default "Pending") if loaded
   if (status.options.length > 0) status.selectedIndex = 0;
 }
@@ -134,6 +136,8 @@ function activateFindUI() {
   orderId.removeAttribute("placeholder");
   orderId.readOnly = false;
   orderId.classList.remove("id-locked");
+  // Show Next button in Find mode
+  nextBtn.style.display = "inline-flex";
   calibrateSlider();
 }
 
@@ -143,6 +147,8 @@ function activateNewUI() {
   orderId.placeholder = "Auto-assigned";
   orderId.readOnly    = true;
   orderId.classList.add("id-locked");
+  // Hide Next button in New mode
+  nextBtn.style.display = "none";
   calibrateSlider();
 }
 
@@ -323,25 +329,77 @@ async function fetchNextOrderId() {
   } catch { return null; }
 }
 
-// Load Customer dropdown from server (NO hardcoded fallback)
+// ── Customer list cache ────────────────────────────────────────
+let customerList = [];   // [{customerId, customerName}, ...]
+
+// Load customers from server into local cache, then build LOV dropdown
 async function loadCustomers() {
-  customerId.disabled = true;
-  customerId.innerHTML = "<option value=''>Loading customers...</option>";
+  customerIdDisplay.placeholder = "Loading customers...";
   try {
     const res = await fetch(`${apiBase}/customers`);
     if (!res.ok) throw new Error();
-    customerId.innerHTML = await res.text();
+    customerList = await res.json();
+    customerIdDisplay.placeholder = "Select Customer";
+    renderCustomerRows(customerList);
   } catch {
-    customerId.innerHTML = "<option value=''>Unable to load customers</option>";
+    customerIdDisplay.placeholder = "Unable to load customers";
     Swal.fire({
       icon : "warning", title: "Customer Load Failed",
       text : "Could not retrieve the customer list. Check server connection.",
       confirmButtonColor: "#5b2e8a",
     });
-  } finally {
-    customerId.disabled = false;
   }
 }
+
+// Render rows into the LOV table body
+function renderCustomerRows(list) {
+  const tbody = document.getElementById("customer-table-body");
+  tbody.innerHTML = list.map(c =>
+    `<tr class="lov-table-row" data-id="${c.customerId}" data-name="${c.customerName}">
+       <td>${c.customerId}</td>
+       <td>${c.customerName}</td>
+     </tr>`
+  ).join("");
+  tbody.querySelectorAll(".lov-table-row").forEach(row =>
+    row.addEventListener("click", () => {
+      customerId.value        = row.dataset.id;
+      customerIdDisplay.value = `${row.dataset.id} - ${row.dataset.name}`;
+      document.getElementById("customer-dropdown").style.display = "none";
+      isDirty = hasUnsavedChanges();
+    })
+  );
+}
+
+// LOV dropdown wiring (same pattern as dispatch-assignment)
+(function setupCustomerLOV() {
+  const dropEl      = document.getElementById("customer-dropdown");
+  const searchInput = dropEl.querySelector(".lov-search");
+
+  customerIdDisplay.addEventListener("click", (e) => {
+    if (customerIdDisplay.disabled) return;
+    e.stopPropagation();
+    document.querySelectorAll(".lov-dropdown").forEach(d => d.style.display = "none");
+    dropEl.style.display = "block";
+    searchInput.value = "";
+    renderCustomerRows(customerList);
+    searchInput.focus();
+  });
+
+  searchInput.addEventListener("click", (e) => e.stopPropagation());
+
+  searchInput.addEventListener("input", () => {
+    const q = searchInput.value.trim().toLowerCase();
+    const filtered = q
+      ? customerList.filter(c =>
+          String(c.customerId).toLowerCase().includes(q) ||
+          c.customerName.toLowerCase().includes(q)
+        )
+      : customerList;
+    renderCustomerRows(filtered);
+  });
+
+  document.addEventListener("click", () => dropEl.style.display = "none");
+})();
 
 // Load Status dropdown directly from LOV table (DispatchOrderStatus) — NO hardcoded fallback
 async function loadStatuses() {
@@ -378,7 +436,11 @@ async function loadStatuses() {
 function populateForm(record) {
   activeRecordId     = record.orderId;
   orderId.value      = record.orderId;
-  customerId.value   = record.customerId   || "";
+  // Set hidden value and resolve display text from cache
+  const cid = String(record.customerId || "");
+  customerId.value        = cid;
+  const found = customerList.find(c => String(c.customerId) === cid);
+  customerIdDisplay.value = found ? `${found.customerId} - ${found.customerName}` : cid;
   dispatchDate.value = record.dispatchDate
     ? String(record.dispatchDate).split("T")[0]
     : "";
@@ -567,10 +629,11 @@ async function performUpdate(silent = false) {
 }
 
 // ── Track field changes for dirty flag ───────────────────────
-[customerId, dispatchDate, source, destination, status].forEach(el => {
+[dispatchDate, source, destination, status].forEach(el => {
   el.addEventListener("input",  () => { isDirty = hasUnsavedChanges(); });
   el.addEventListener("change", () => { isDirty = hasUnsavedChanges(); });
 });
+// customerId (hidden) is set via selectCustomer which calls hasUnsavedChanges directly
 
 // ══ Mode toggle: Find ↔ New ══════════════════════════════════
 modeFindRadio.addEventListener("change", async () => {

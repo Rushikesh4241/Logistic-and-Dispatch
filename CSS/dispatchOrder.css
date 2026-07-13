@@ -27,7 +27,7 @@ html, body {
   overflow: hidden;
   margin: 0;
   padding: 0;
-  background: #f6f7fb;
+  background: #cfe2ff;
 }
 
 body {
@@ -38,11 +38,11 @@ body {
 
 /* ── Outer card ── */
 .container {
-  width: 96vw;
+  width: 90vw;
   max-width: 1400px;
   background: #fff;
-  border-radius: 16px;
-  padding: 44px 64px 38px;
+  border-radius: 20px;
+  padding: 52px 72px 48px;
   box-shadow: 0 8px 30px rgba(60, 64, 67, 0.10);
   display: flex;
   flex-direction: column;
@@ -79,10 +79,10 @@ body {
 /* ── Form panel ── */
 .form-wrap {
   background: var(--light-purple);
-  border-radius: 12px;
-  padding: 22px 30px;
-  width: 85%;
-  max-width: 960px;
+  border-radius: 20px;
+  padding: 32px 48px;
+  width: 95%;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -118,8 +118,11 @@ body {
   flex-shrink: 0;
   color: var(--purple);
   font-weight: 700;
-  font-size: 15px;
+  font-size: 16px;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
 /* stack ID input + alert */
@@ -187,6 +190,8 @@ body {
 .form-group:has(.textarea-field) .field-label {
   padding-top: 10px;
 }
+
+/* Label + info button — label is now a flex row; no wrapper div needed */
 
 /* Order ID locked in New mode */
 .field-input.id-locked {
@@ -355,17 +360,126 @@ body {
 .mode-toggle input#mode-find:checked + label,
 .mode-toggle input#mode-new:checked  + label  { color: #fff; }
 
-/* Info button */
+/* Info button — tiny superscript circle inline with label text */
 .info-btn {
-  width: 28px; height: 28px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  background: #fff;
-  border: 1px solid rgba(91,46,138,0.14);
-  color: var(--purple);
+  background: var(--purple);
+  border: none;
+  color: #fff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: default;
-  font-size: 12px;
+  font-size: 10px;
+  font-weight: 700;
+  font-style: italic;
   flex-shrink: 0;
+  line-height: 1;
+  padding: 0;
+  vertical-align: middle;
+  transition: background 0.15s;
+}
+.info-btn:hover {
+  background: var(--accent);
+  cursor: help;
+}
+
+/* ══════════════════════════════════════════
+   CUSTOMER LOV DROPDOWN  (dispatch-assignment pattern)
+   ══════════════════════════════════════════ */
+
+/* Wrapper that makes the dropdown position correctly */
+.lov-container {
+  position: relative;
+  flex: 1;
+  min-width: 220px;
+  max-width: 320px;
+}
+
+/* Readonly input that looks like a select and triggers the dropdown */
+.lov-input {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right .75rem center;
+  background-size: 16px 12px;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* The floating dropdown panel */
+.lov-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  z-index: 200;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+  display: none;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  padding: 8px;
+}
+
+/* Wider variant for the 2-column Customer table — expands left so it stays within form */
+.lov-dropdown.table-wide {
+  width: 340px;
+  left: 0;
+}
+
+/* Search input inside the dropdown */
+.lov-search {
+  width: 100%;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+  border-radius: 6px;
+  border: 1px solid rgba(91,46,138,0.22);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.lov-search:focus { border-color: var(--accent); }
+
+/* Table inside the LOV dropdown */
+.lov-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.lov-table thead tr {
+  background: var(--light-purple);
+}
+
+.lov-table th {
+  padding: 7px 12px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--purple);
+  border-bottom: 1px solid rgba(91,46,138,0.20);
+  white-space: nowrap;
+}
+
+.lov-table td {
+  padding: 7px 12px;
+  border-bottom: 1px solid #f0ebfa;
+  color: #374151;
+}
+
+.lov-table-row {
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.lov-table-row:hover {
+  background: #f3eaf9;
+}
+
+.lov-table-row:hover td {
+  color: var(--purple);
+  font-weight: 600;
 }

@@ -5,7 +5,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Dispatch Order Entry</title>
-        <link rel="stylesheet" href="../CSS/dispatchOrder.css?v=4">
+        <link rel="stylesheet" href="../CSS/dispatchOrder.css?v=6">
     </head>
 
     <body>
@@ -62,14 +62,34 @@
                     <!-- ══ ROW 2 : Customer  |  Status ══ -->
                     <div class="form-row">
 
-                        <!-- Customer FK dropdown -->
+                        <!-- Customer LOV dropdown (search + table) -->
                         <div class="form-group">
-                            <label for="customer-id" class="field-label">
+                            <label for="customer-id-display" class="field-label">
                                 Customer : <span class="required">*</span>
                             </label>
-                            <select id="customer-id" class="field-input field-select">
-                                <option value="">Loading customers...</option>
-                            </select>
+                            <div class="lov-container">
+                                <input type="hidden" id="customer-id" />
+                                <input type="text" id="customer-id-display"
+                                       class="field-input field-select lov-input"
+                                       placeholder="Select Customer" readonly />
+                                <div class="lov-dropdown table-wide" id="customer-dropdown">
+                                    <input type="text" class="lov-search"
+                                           placeholder="Search by ID or Name..." />
+                                    <table class="lov-table">
+                                        <colgroup>
+                                            <col style="width: 90px;" />
+                                            <col />
+                                        </colgroup>
+                                        <thead>
+                                            <tr>
+                                                <th>Cust. ID</th>
+                                                <th>Customer Name</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="customer-table-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Status (loaded from LOV table) -->
@@ -89,6 +109,9 @@
                         <div class="form-group">
                             <label for="source" class="field-label">
                                 Source : <span class="required">*</span>
+                                <button type="button" class="info-btn" id="source-info-btn"
+                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="Enter the full pickup/origin address or location name for this dispatch.">i</button>
                             </label>
                             <textarea id="source" class="field-input textarea-field"></textarea>
                         </div>
@@ -97,6 +120,9 @@
                         <div class="form-group">
                             <label for="destination" class="field-label">
                                 Destination : <span class="required">*</span>
+                                <button type="button" class="info-btn" id="destination-info-btn"
+                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="Enter the full delivery/drop-off address or location name for this dispatch.">i</button>
                             </label>
                             <textarea id="destination" class="field-input textarea-field"></textarea>
                         </div>
@@ -105,6 +131,7 @@
 
                 </form>
             </main><!-- /form-wrap -->
+
 
             <!-- ══ Action Buttons ══ -->
             <div class="actions">
@@ -129,7 +156,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script src="../JS/dispatchOrder.js?v=4"></script>
+        <script src="../JS/dispatchOrder.js?v=6"></script>
     </body>
 
 </html>

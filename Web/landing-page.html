@@ -1,178 +1,381 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logistics &amp; Dispatch Management System</title>
+    <meta name="description" content="Centralized Logistics & Dispatch Management – Customers, Vehicles, Drivers, Orders, Assignments, Deliveries and Reports.">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Logistic and Dispatch - Landing Page</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <style>
+        /* ════════════════════════════════════════════════
+           ROOT  — exact colors from existing forms
+           --purple      #5b2e8a   (h1 bg / main-text)
+           --accent      #7f4ec9   (h2 gradient start)
+           --light-purple #f3eaf9  (form body bg)
+           --body-bg     #f6f7fb   (page background)
+        ════════════════════════════════════════════════ */
+        :root {
+            --purple:        #5b2e8a;
+            --accent:        #7f4ec9;
+            --light-purple:  #f3eaf9;
+            --body-bg:       #f6f7fb;
+            --white:         #ffffff;
 
-        <style>
-            body {
-                background-color: #f4f6f9;
-                font-family: Arial, Helvetica, sans-serif;
-                overflow-y: auto;
-                min-height: 100vh;
-            }
+            /* column accent colors — used for header bars & alternating rows */
+            --c1: #3b82c4;   /* Master   — blue  */
+            --c2: #3a7d44;   /* Trans    — green */
+            --c3: #7f4ec9;   /* Dash     — accent purple */
+            --c4: #b45a1a;   /* Reports  — amber */
+            --c5: #1e7b78;   /* Proc     — teal  */
 
-            .main-text {
-                background: linear-gradient(135deg, #5B2E8A,#5B2E8A,#a471dc);
-            }
+            /* light tints for alternating rows (even rows) */
+            --c1-alt: #e8f2fc;
+            --c2-alt: #e6f4ea;
+            --c3-alt: #f0eafa;
+            --c4-alt: #fdf0e2;
+            --c5-alt: #e2f4f3;
+        }
 
-            
-            .module-item-link {
-                text-decoration: none !important;
-                color: inherit !important;
-                display: block;
-                transition: all 0.2s ease-in-out;
-            }
+        /* ── Reset ────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-            .module-item-link:hover {
-                background-color: #F3EAF9 !important;
-                transform: translateX(4px);
-            }
+        /* ── Full-page shell ──────────────────── */
+        html, body {
+            height: 100%;
+            width: 100%;
+            background: var(--body-bg);       /* matches form page body bg */
+            font-family: 'Inter', Arial, sans-serif;
+            overflow: hidden;
+        }
 
-            .card-master { border-color: #badbcc !important; }
-            .card-transaction { border-color: #f5c2c7 !important; }
-            .card-dashboard { border-color: #ffecb5 !important; }
-            .card-reports { border-color: #bfe5ea !important; }
-            .card-processing { border-color: #ced4da !important; }
-        </style>
-    </head>
+        .page-shell {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+            padding: 12px 12px 8px;
+            gap: 10px;
+        }
 
-    <body class="py-3">
-        <div class="container-fluid px-4">
-            
-            <div class="d-flex justify-content-center px-4 py-2 rounded-4 text-white shadow-sm main-text mb-4"
-                style="border-bottom: #b2dbff solid 10px;">
-                <div class="text-center">
-                    <h2 class="fw-bold m-0"><i class="fa-solid fa-truck-fast me-3"></i>Logistic and Dispatch Management System</h2>
-                    <p class="lead m-0 mt-2 opacity-75">Effortlessly coordinate orders, drivers, and vehicles through a single, unified dispatch administration matrix.</p>
-                </div>
+        /* ════════════════════════════════════════
+           HEADER — one unified block, centered
+           title + subtitle stacked, drop shadow
+        ════════════════════════════════════════ */
+        .page-header {
+            flex-shrink: 0;
+            background: linear-gradient(90deg, var(--accent), var(--purple));
+            border-radius: 8px;
+            padding: 14px 32px 12px;
+            text-align: center;
+            /* deep shadow below — like Housing Society reference */
+            box-shadow:
+                0 8px 24px rgba(91, 46, 138, 0.45),
+                0 3px 8px  rgba(91, 46, 138, 0.25);
+        }
+
+        .page-header h2 {
+            color: var(--white);
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            font-weight: 900;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .page-header .subtitle {
+            display: block;
+            color: rgba(255, 255, 255, 0.82);
+            font-size: clamp(0.62rem, 0.95vw, 0.78rem);
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            margin-top: 5px;
+        }
+
+        /* ════════════════════════════════════════
+           COLUMNS GRID — fills remaining height
+        ════════════════════════════════════════ */
+        .cols-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* ── Single column ────────────────────── */
+        .col {
+            display: flex;
+            flex-direction: column;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(91,46,138,0.10);
+            min-height: 0;
+        }
+
+        /* column body bg = light tint of each column color */
+        .col-1 { border: 1.5px solid #b8d5f0; }
+        .col-2 { border: 1.5px solid #b3d9bc; }
+        .col-3 { border: 1.5px solid #d4bff5; }
+        .col-4 { border: 1.5px solid #f0c99a; }
+        .col-5 { border: 1.5px solid #9fd8d5; }
+
+        .col-1 .col-body { background: var(--c1-alt); }
+        .col-2 .col-body { background: var(--c2-alt); }
+        .col-3 .col-body { background: var(--c3-alt); }
+        .col-4 .col-body { background: var(--c4-alt); }
+        .col-5 .col-body { background: var(--c5-alt); }
+
+        /* ── Column header bar ────────────────── */
+        .col-hdr {
+            flex-shrink: 0;
+            padding: 8px 12px 7px;
+            font-size: clamp(0.62rem, 0.85vw, 0.80rem);
+            font-weight: 800;
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
+            color: #fff;
+            line-height: 1.25;
+        }
+        .col-hdr .count {
+            font-weight: 600;
+            font-size: 0.82em;
+            opacity: 0.88;
+            margin-left: 3px;
+        }
+
+        /* column header bg colors */
+        .hdr-1 { background: var(--c1); }
+        .hdr-2 { background: var(--c2); }
+        .hdr-3 { background: var(--c3); }
+        .hdr-4 { background: var(--c4); }
+        .hdr-5 { background: var(--c5); }
+
+        /* ── Scrollable items body ────────────── */
+        .col-body {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+            scrollbar-width: thin;
+            scrollbar-color: var(--light-purple) transparent;
+        }
+        .col-body::-webkit-scrollbar { width: 4px; }
+        .col-body::-webkit-scrollbar-thumb {
+            background: var(--light-purple);
+            border-radius: 4px;
+        }
+
+        /* ── Item row ─────────────────────────── */
+        .mod-row {
+            display: block;
+            text-decoration: none !important;
+            padding: 9px 13px 8px;
+            border-bottom: 1px solid rgba(91,46,138,0.07);
+            transition: background 0.13s ease;
+            cursor: pointer;
+        }
+        .mod-row:last-child { border-bottom: none; }
+
+        /* alternating row colors (odd = white, even = light column tint) */
+        /* applied via nth-child on .mod-row within each col-body */
+
+        /* ── Item text ───────────────────────── */
+        .mod-row .t {
+            font-size: clamp(0.68rem, 0.88vw, 0.80rem);
+            font-weight: 700;
+            color: var(--purple);
+            display: block;
+            line-height: 1.3;
+        }
+        .mod-row .d {
+            font-size: clamp(0.58rem, 0.75vw, 0.68rem);
+            color: #7a6e8a;
+            display: block;
+            margin-top: 1px;
+            line-height: 1.3;
+        }
+
+        /* ── Alternating odd rows = white, even = column tint ─ */
+        .mod-row:nth-child(odd)  { background: var(--white); }
+        /* even rows keep the col-body bg (already set per-col) */
+
+        /* ── Hover tints ──────────────────────── */
+        .col-1 .mod-row:hover { background: #cde2f7; }
+        .col-2 .mod-row:hover { background: #c8e8cd; }
+        .col-3 .mod-row:hover { background: #e0d4f5; }
+        .col-4 .mod-row:hover { background: #f9dfc0; }
+        .col-5 .mod-row:hover { background: #bde5e3; }
+
+        /* ── Hover title color per column ──────── */
+        .col-1 .mod-row:hover .t { color: #1a5fa0; }
+        .col-2 .mod-row:hover .t { color: #245c2d; }
+        .col-3 .mod-row:hover .t { color: var(--purple); }
+        .col-4 .mod-row:hover .t { color: #7a3a08; }
+        .col-5 .mod-row:hover .t { color: #0f4f4d; }
+    </style>
+</head>
+
+<body>
+<div class="page-shell">
+
+    <!-- ══════════════ HEADER ══════════════ -->
+    <div class="page-header">
+        <h2>&#x1F69A;&nbsp; Logistics &amp; Dispatch Management System</h2>
+        <span class="subtitle">Effortlessly coordinate orders, drivers, and vehicles through a single, unified dispatch administration matrix</span>
+    </div>
+
+    <!-- ══════════════ 5 COLUMNS ══════════════ -->
+    <div class="cols-grid">
+
+        <!-- ── COL 1: MASTER ENTRY ── -->
+        <div class="col col-1">
+            <div class="col-hdr hdr-1">
+                MASTER ENTRY <span class="count">[3 Masters]</span>
             </div>
+            <div class="col-body">
 
-            <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-3">
-                
-                <div class="col">
-                    <div class="card h-100 card-master shadow-sm rounded-3 overflow-hidden bg-white">
-                        <div class="text-center fw-bold bg-success-subtle text-success-dark py-3 px-2 border-bottom">
-                            <i class="fa-solid fa-database me-2"></i>MASTER ENTRY &nbsp;[3 Masters]
-                        </div>
-                        
-                        <a href="customer.html" class="p-3 border-bottom module-item-link">
-                            <h5 class="fw-bold fs-6 text-primary mb-1"><i class="fa-solid fa-user-tie me-2 text-secondary"></i>Customer Master</h5>
-                            <p class="small text-muted m-0">Customer information & details</p>
-                        </a>
-                        
-                        <a href="driver.html" class="p-3 border-bottom module-item-link">
-                            <h5 class="fw-bold fs-6 text-primary mb-1"><i class="fa-solid fa-id-card me-2 text-secondary"></i>Driver Master</h5>
-                            <p class="small text-muted m-0">Driver information & details</p>
-                        </a>
-                        
-                        <a href="vehicle.html" class="p-3 module-item-link">
-                            <h5 class="fw-bold fs-6 text-primary mb-1"><i class="fa-solid fa-bus me-2 text-secondary"></i>Vehicle Master</h5>
-                            <p class="small text-muted m-0">Vehicle information & details</p>
-                        </a>
-                    </div>
-                </div>
+                <a href="customer.html" id="lnk-customer" class="mod-row">
+                    <span class="t">Customer Master</span>
+                    <span class="d">Customer information &amp; details</span>
+                </a>
 
-                <div class="col">
-                    <div class="card h-100 card-transaction shadow-sm rounded-3 overflow-hidden bg-white">
-                        <div class="text-center fw-bold bg-danger-subtle text-danger-dark py-3 px-2 border-bottom">
-                            <i class="fa-solid fa-receipt me-2"></i>TRANSACTION &nbsp;[3 Forms]
-                        </div>
-                        
-                        <a href="dispatchOrder.html" class="p-3 border-bottom module-item-link">
-                            <h5 class="fw-bold fs-6 text-primary mb-1"><i class="fa-solid fa-box-archive me-2 text-secondary"></i>Dispatch Order</h5>
-                            <p class="small text-muted m-0">Create and Dispatch orders</p>
-                        </a>
-                        
-                        <a href="DispatchAssignment.html" class="p-3 border-bottom module-item-link">
-                            <h5 class="fw-bold fs-6 text-primary mb-1"><i class="fa-solid fa-clipboard-list me-2 text-secondary"></i>Dispatch Assignment</h5>
-                            <p class="small text-muted m-0">Assign orders to drivers and fleets</p>
-                        </a>
-                        
-                        <a href="delivery.html" class="p-3 module-item-link">
-                            <h5 class="fw-bold fs-6 text-primary mb-1"><i class="fa-solid fa-map-location-dot me-2 text-secondary"></i>Delivery Status</h5>
-                            <p class="small text-muted m-0">Manage Dispatch Orders for Delivery</p>
-                        </a>
-                    </div>
-                </div>
+                <a href="vehicle.html" id="lnk-vehicle" class="mod-row">
+                    <span class="t">Vehicle Master</span>
+                    <span class="d">Vehicle details &amp; availability</span>
+                </a>
 
-                <div class="col">
-                    <div class="card h-100 card-dashboard shadow-sm rounded-3 overflow-hidden bg-white">
-                        <div class="text-center fw-bold bg-warning-subtle text-warning-dark py-3 px-2 border-bottom">
-                            <i class="fa-solid fa-chart-pie me-2"></i>DASHBOARDS &nbsp;[3 Views]
-                        </div>
-                        
-                        <a href="admin-dashboard.html" class="p-3 border-bottom module-item-link">
-                            <h5 class="fw-bold fs-6 text-primary mb-1"><i class="fa-solid fa-gauge-high me-2 text-secondary"></i>Admin Dashboard</h5>
-                            <p class="small text-muted m-0">Logistic System Overview</p>
-                        </a>
-                        
-                        <a href="dispatcher-dashboard.html" class="p-3 border-bottom module-item-link">
-                            <h5 class="fw-bold fs-6 text-primary mb-1"><i class="fa-solid fa-sliders me-2 text-secondary"></i>Dispatcher Board</h5>
-                            <p class="small text-muted m-0">Real-time tracking controls</p>
-                        </a>
-                        
-                        <a href="driver-dashboard.html" class="p-3 module-item-link">
-                            <h5 class="fw-bold fs-6 text-primary mb-1"><i class="fa-solid fa-circle-user me-2 text-secondary"></i>Driver Console</h5>
-                            <p class="small text-muted m-0">Assigned personal transit grids</p>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="col">
-                    <div class="card h-100 card-reports shadow-sm rounded-3 overflow-hidden bg-white">
-                        <div class="text-center fw-bold bg-info-subtle text-info-dark py-3 px-2 border-bottom">
-                            <i class="fa-solid fa-file-invoice me-2"></i>REPORTS &nbsp;[3 Ledgers]
-                        </div>
-                        
-                        <a href="order-reports.html" class="p-3 border-bottom module-item-link">
-                            <h5 class="fw-bold fs-6 text-primary mb-1"><i class="fa-solid fa-print me-2 text-secondary"></i>Order History Ledger</h5>
-                            <p class="small text-muted m-0">Review past order records</p>
-                        </a>
-                        
-                        <a href="assignment-reports.html" class="p-3 border-bottom module-item-link">
-                            <h5 class="fw-bold fs-6 text-primary mb-1"><i class="fa-solid fa-chart-column me-2 text-secondary"></i>Assignment Audit Logs</h5>
-                            <p class="small text-muted m-0">Audit vehicle distribution metrics</p>
-                        </a>
-                        
-                        <a href="delivery-reports.html" class="p-3 module-item-link">
-                            <h5 class="fw-bold fs-6 text-primary mb-1"><i class="fa-solid fa-square-poll-vertical me-2 text-secondary"></i>Delivery Summaries</h5>
-                            <p class="small text-muted m-0">Performance analytics summaries</p>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="col">
-                    <div class="card h-100 card-processing shadow-sm rounded-3 overflow-hidden bg-white">
-                        <div class="text-center fw-bold bg-secondary-subtle text-secondary-dark py-3 px-2 border-bottom">
-                            <i class="fa-solid fa-gears me-2"></i>PROCESSING &nbsp;[3 Queues]
-                        </div>
-                        
-                        <a href="order-processing.html" class="p-3 border-bottom module-item-link">
-                            <h5 class="fw-bold fs-6 text-primary mb-1"><i class="fa-solid fa-rotate me-2 text-secondary"></i>Order Pipeline</h5>
-                            <p class="small text-muted m-0">Process incoming batch entries</p>
-                        </a>
-                        
-                        <a href="assignment-processing.html" class="p-3 border-bottom module-item-link">
-                            <h5 class="fw-bold fs-6 text-primary mb-1"><i class="fa-solid fa-truck-ramp-box me-2 text-secondary"></i>Route Optimization</h5>
-                            <p class="small text-muted m-0">Compute sequential route queues</p>
-                        </a>
-                        
-                        <a href="delivery-processing.html" class="p-3 module-item-link">
-                            <h5 class="fw-bold fs-6 text-primary mb-1"><i class="fa-solid fa-circle-check me-2 text-secondary"></i>Manifest Settlement</h5>
-                            <p class="small text-muted m-0">Final bulk manifest verification closure</p>
-                        </a>
-                    </div>
-                </div>
+                <a href="driver.html" id="lnk-driver" class="mod-row">
+                    <span class="t">Driver Master</span>
+                    <span class="d">Driver information &amp; license</span>
+                </a>
 
             </div>
         </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    </body>
+        <!-- ── COL 2: TRANSACTIONS ── -->
+        <div class="col col-2">
+            <div class="col-hdr hdr-2">
+                TRANSACTIONS <span class="count">[3 Forms]</span>
+            </div>
+            <div class="col-body">
 
+                <a href="dispatchOrder.html" id="lnk-dispatch-order" class="mod-row">
+                    <span class="t">Dispatch Order</span>
+                    <span class="d">Create order with source &amp; destination</span>
+                </a>
+
+                <a href="dispatch-assignment.html" id="lnk-assignment" class="mod-row">
+                    <span class="t">Dispatch Assignment</span>
+                    <span class="d">Assign vehicle &amp; driver to order</span>
+                </a>
+
+                <a href="delivery.html" id="lnk-delivery" class="mod-row">
+                    <span class="t">Delivery Confirmation</span>
+                    <span class="d">Capture delivery date &amp; remarks</span>
+                </a>
+
+            </div>
+        </div>
+
+        <!-- ── COL 3: DASHBOARDS ── -->
+        <div class="col col-3">
+            <div class="col-hdr hdr-3">
+                DASHBOARDS <span class="count">[3 Views]</span>
+            </div>
+            <div class="col-body">
+
+                <a href="admin-dashboard.html" id="lnk-admin-dash" class="mod-row">
+                    <span class="t">Admin Dashboard</span>
+                    <span class="d">System overview &amp; key metrics</span>
+                </a>
+
+                <a href="dispatcher-dashboard.html" id="lnk-dispatcher-dash" class="mod-row">
+                    <span class="t">Dispatcher Board</span>
+                    <span class="d">Live order &amp; assignment controls</span>
+                </a>
+
+                <a href="driver-dashboard.html" id="lnk-driver-dash" class="mod-row">
+                    <span class="t">Driver Console</span>
+                    <span class="d">View assignments &amp; update delivery status</span>
+                </a>
+
+            </div>
+        </div>
+
+        <!-- ── COL 4: REPORTS ── -->
+        <div class="col col-4">
+            <div class="col-hdr hdr-4">
+                REPORTS <span class="count">[5 Reports]</span>
+            </div>
+            <div class="col-body">
+
+                <a href="reports/dispatch-report.html" id="lnk-rep-dispatch" class="mod-row">
+                    <span class="t">Dispatch Report</span>
+                    <span class="d">Full dispatch history &amp; summary</span>
+                </a>
+
+                <a href="reports/delivery-report.html" id="lnk-rep-delivery" class="mod-row">
+                    <span class="t">Delivery Report</span>
+                    <span class="d">Completed deliveries &amp; confirmation log</span>
+                </a>
+
+                <a href="reports/pending-orders-report.html" id="lnk-rep-pending" class="mod-row">
+                    <span class="t">Pending Orders Report</span>
+                    <span class="d">Outstanding &amp; unassigned orders</span>
+                </a>
+
+                <a href="reports/vehicle-utilization-report.html" id="lnk-rep-vehicle" class="mod-row">
+                    <span class="t">Vehicle Utilization Report</span>
+                    <span class="d">Fleet usage &amp; availability analysis</span>
+                </a>
+
+                <a href="reports/driver-assignment-report.html" id="lnk-rep-driver" class="mod-row">
+                    <span class="t">Driver Assignment Report</span>
+                    <span class="d">Driver-wise assignment &amp; trip summary</span>
+                </a>
+
+            </div>
+        </div>
+
+        <!-- ── COL 5: PROCESSING ── -->
+        <div class="col col-5">
+            <div class="col-hdr hdr-5">
+                PROCESSING <span class="count">[5 Jobs]</span>
+            </div>
+            <div class="col-body">
+
+                <a href="processing/status-update.html" id="lnk-proc-status" class="mod-row">
+                    <span class="t">Status Update Processing</span>
+                    <span class="d">Bulk update Pending → Dispatched → Delivered</span>
+                </a>
+
+                <a href="processing/delivery-confirmation.html" id="lnk-proc-delivery" class="mod-row">
+                    <span class="t">Delivery Confirmation</span>
+                    <span class="d">Process &amp; finalize delivery records</span>
+                </a>
+
+                <a href="processing/auto-assignment.html" id="lnk-proc-assign" class="mod-row">
+                    <span class="t">Auto Assignment Processing</span>
+                    <span class="d">Auto-match available drivers &amp; vehicles</span>
+                </a>
+
+                <a href="processing/audit-log.html" id="lnk-proc-audit" class="mod-row">
+                    <span class="t">Audit Log Processing</span>
+                    <span class="d">Capture created/updated timestamps &amp; trail</span>
+                </a>
+
+                <a href="processing/data-archival.html" id="lnk-proc-archive" class="mod-row">
+                    <span class="t">Data Archival</span>
+                    <span class="d">Archive completed &amp; old dispatch records</span>
+                </a>
+
+            </div>
+        </div>
+
+    </div><!-- end cols-grid -->
+
+</div><!-- end page-shell -->
+</body>
 </html>
