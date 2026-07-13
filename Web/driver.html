@@ -11,8 +11,7 @@
             body {
                 background-color: #f9f9f9;
                 font-family: Arial, Helvetica, sans-serif;
-                margin: 0;
-                padding: 0;
+                min-height: 100vh;
             }
 
             .main-form {
@@ -87,21 +86,10 @@
                 max-width: 350px;
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             }
-
-            /* Hides up-down counter spin fields */
-            input[type=number]::-webkit-inner-spin-button,
-            input[type=number]::-webkit-outer-spin-button {
-                -webkit-appearance: none;
-                margin: 0;
-            }
-
-            input[type=number] {
-                -moz-appearance: textfield;
-            }
         </style>
     </head>
 
-    <body class="bg-primary-subtle d-flex align-items-center justify-content-center vh-100">
+    <body class="bg-primary-subtle d-flex align-items-center justify-content-center">
 
         <div class="main-form border rounded-5 p-4 shadow-lg bg-white mx-auto">
             <div class="row m-0">
@@ -137,12 +125,12 @@
                             </div>
 
                             <div class="mb-4 d-flex align-items-center text-nowrap gap-3">
-                                <label for="phone" class="form-label mb-0" style="width: 160px;">Phone Number: </label>
+                                <label for="phone" class="form-label mb-0" style="width: 160px;">Phone Number: <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="phone" style="width: 220px; max-width: 100%;">
                             </div>
 
                             <div class="mb-2 d-flex align-items-center text-nowrap gap-3">
-                                <label for="license" class="form-label mb-0" style="width: 160px;">License Number: </label>
+                                <label for="license" class="form-label mb-0" style="width: 160px;">License Number: <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="license" style="width: 220px; max-width: 100%;">
                             </div>
                         </div>
