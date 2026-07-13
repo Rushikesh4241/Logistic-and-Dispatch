@@ -13,20 +13,15 @@
                 font-family: Arial, Helvetica, sans-serif;
                 margin: 0;
                 padding: 0;
-                overflow: hidden;
             }
 
             .main-form {
                 width: 90vw;
-                height: 90vh; /* Keeps the inner container bounded safely inside the viewport */
+                min-height: 90vh; /* Keeps the inner container bounded safely inside the viewport */
                 display: flex;
                 flex-direction: column;
                 justify-content: center; /* Centers items cleanly inside the box layout vertically */
                 align-items: center;
-            }
-
-            .h1{
-                font-size: 30px;
             }
 
             .main-text {
@@ -34,7 +29,7 @@
             }
 
             .div-form {
-                font-size: 17px;
+                font-size: 18px;
             }
 
             .form-label {
@@ -142,12 +137,12 @@
                             </div>
 
                             <div class="mb-4 d-flex align-items-center text-nowrap gap-3">
-                                <label for="phone" class="form-label mb-0" style="width: 160px;">Phone Number: <span class="text-danger">*</span></label>
+                                <label for="phone" class="form-label mb-0" style="width: 160px;">Phone Number: </label>
                                 <input type="text" class="form-control" id="phone" style="width: 220px; max-width: 100%;">
                             </div>
 
                             <div class="mb-2 d-flex align-items-center text-nowrap gap-3">
-                                <label for="license" class="form-label mb-0" style="width: 160px;">License Number: <span class="text-danger">*</span></label>
+                                <label for="license" class="form-label mb-0" style="width: 160px;">License Number: </label>
                                 <input type="text" class="form-control" id="license" style="width: 220px; max-width: 100%;">
                             </div>
                         </div>
