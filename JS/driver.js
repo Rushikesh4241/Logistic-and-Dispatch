@@ -490,7 +490,17 @@ async function commitFormAction(silent = false) {
         return false;
     }
 
-    if (driverPhone.value.trim() !== "" && !phoneRegex.test(driverPhone.value.trim())) {
+    if (!driverPhone.value.trim()) {
+        Swal.fire({ icon: "error", title: "Phone Required", text: "Phone Number field is required to submit this record.", confirmButtonColor: "#5b2e8a" });
+        return false;
+    }
+
+    if (!licenseNumber.value.trim()) {
+        Swal.fire({ icon: "error", title: "License Required", text: "License Number field is required to submit this record.", confirmButtonColor: "#5b2e8a" });
+        return false;
+    }
+
+    if (!phoneRegex.test(driverPhone.value.trim())) {
         Swal.fire({ icon: "error", title: "Invalid Input", text: "Phone records must contain exactly 10 digits.", confirmButtonColor: "#5b2e8a" });
         return false;
     }
@@ -545,6 +555,20 @@ async function commitFormAction(silent = false) {
 
     // HANDLER FOR SAVE ROUTE
     } else {
+        if (!silent) {
+            const confirmBox = await Swal.fire({
+                title: "Confirm Save",
+                text: "Are you sure you want to save this new driver record?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Save",
+                cancelButtonText: "Cancel",
+                confirmButtonColor: "#16a34a",
+                cancelButtonColor: "#6b7280"
+            });
+            if (!confirmBox.isConfirmed) return false;
+        }
+
         try {
             const response = await fetch(API_BASE_URL, {
                 method: "POST",
