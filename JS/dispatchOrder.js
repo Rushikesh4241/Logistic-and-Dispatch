@@ -332,14 +332,31 @@ async function fetchNextOrderId() {
 // ── Customer list cache ────────────────────────────────────────
 let customerList = [];   // [{customerId, customerName}, ...]
 
-// Load customers from server into local cache, then build LOV dropdown
-async function loadCustomers() {
-  customerIdDisplay.placeholder = "Loading customers...";
+// Load customers — mode controls which endpoint is called:
+//   "find"   → /customers          (all customers — for initial page load / find mode)
+//   "new"    → /customers/available (no excludeOrderId — hides ALL dispatched customers)
+//   "update" → /customers/available?excludeOrderId=N (keeps current order's customer visible)
+async function loadCustomers(mode = "find", excludeId = null) {
+  let endpoint;
+  if (mode === "new") {
+    endpoint = `${apiBase}/customers/available`;
+  } else if (mode === "update" && excludeId) {
+    endpoint = `${apiBase}/customers/available?excludeOrderId=${excludeId}`;
+  } else {
+    endpoint = `${apiBase}/customers`;
+  }
+
+  customerIdDisplay.placeholder = (mode === "new" || mode === "update")
+    ? "Loading available customers..."
+    : "Loading customers...";
+
   try {
-    const res = await fetch(`${apiBase}/customers`);
+    const res = await fetch(endpoint);
     if (!res.ok) throw new Error();
     customerList = await res.json();
-    customerIdDisplay.placeholder = "Select Customer";
+    customerIdDisplay.placeholder = (mode === "new" || mode === "update")
+      ? "Select Customer"
+      : "Select Customer";
     renderCustomerRows(customerList);
   } catch {
     customerIdDisplay.placeholder = "Unable to load customers";
@@ -353,7 +370,11 @@ async function loadCustomers() {
 
 // Render rows into the LOV table body
 function renderCustomerRows(list) {
-  const tbody = document.getElementById("customer-table-body");
+  const tbody  = document.getElementById("customer-table-body");
+  const noMsg  = document.getElementById("no-avail-msg");
+
+  if (noMsg) noMsg.style.display = (list.length === 0 && (currentMode === "new" || activeRecordId)) ? "block" : "none";
+
   tbody.innerHTML = list.map(c =>
     `<tr class="lov-table-row" data-id="${c.customerId}" data-name="${c.customerName}">
        <td>${c.customerId}</td>
@@ -399,6 +420,13 @@ function renderCustomerRows(list) {
   });
 
   document.addEventListener("click", () => dropEl.style.display = "none");
+
+  // Show a helpful note when no customers are available in New mode
+  const noAvailMsg = document.createElement("p");
+  noAvailMsg.id = "no-avail-msg";
+  noAvailMsg.style.cssText = "margin:6px 4px;font-size:12px;color:#d97706;display:none;";
+  noAvailMsg.textContent = "⚠ No unassigned customers available. Only the current order's customer can be selected.";
+  dropEl.insertBefore(noAvailMsg, dropEl.firstChild);
 })();
 
 // Load Status dropdown directly from LOV table (DispatchOrderStatus) — NO hardcoded fallback
@@ -436,11 +464,24 @@ async function loadStatuses() {
 function populateForm(record) {
   activeRecordId     = record.orderId;
   orderId.value      = record.orderId;
-  // Set hidden value and resolve display text from cache
+  // Set hidden value and resolve display text (ID - Name) from cache
   const cid = String(record.customerId || "");
   customerId.value        = cid;
   const found = customerList.find(c => String(c.customerId) === cid);
-  customerIdDisplay.value = found ? `${found.customerId} - ${found.customerName}` : cid;
+  if (found) {
+    customerIdDisplay.value = `${found.customerId} - ${found.customerName}`;
+  } else if (cid) {
+    // Not in current cache — show ID immediately, then fetch name async
+    customerIdDisplay.value = cid;
+    fetch(`${apiBase}/customers`)
+      .then(r => r.ok ? r.json() : [])
+      .then(list => {
+        const match = list.find(c => String(c.customerId) === cid);
+        if (match) customerIdDisplay.value = `${match.customerId} - ${match.customerName}`;
+      })
+      .catch(() => {});
+  }
+
   dispatchDate.value = record.dispatchDate
     ? String(record.dispatchDate).split("T")[0]
     : "";
@@ -450,6 +491,9 @@ function populateForm(record) {
   setFormMode(true);
   markClean();
   hideIdAlert();
+  // Reload customer list in update mode:
+  // shows only the current order's customer + customers with no dispatch order
+  loadCustomers("update", record.orderId);
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -647,6 +691,8 @@ modeFindRadio.addEventListener("change", async () => {
     setFormMode(false);
     markClean(getCurrentFormState());
     hideIdAlert();
+    // Reload customer list — show ALL customers in find/update mode
+    await loadCustomers("find");
   });
   calibrateSlider();
 });
@@ -658,6 +704,8 @@ modeNewRadio.addEventListener("change", async () => {
     orderId.value    = "";
     newModeSessionId = null;
     hideIdAlert();
+    // Reload customer list — show only customers without a dispatch order
+    await loadCustomers("new");
     await doNew();
   });
   calibrateSlider();
@@ -822,7 +870,8 @@ function resetForm() {
 
 // ── Init ─────────────────────────────────────────────────────
 (async function init() {
-  await Promise.all([loadCustomers(), loadStatuses()]);
+  // Start in find mode — load ALL customers (needed for viewing/updating existing orders)
+  await Promise.all([loadCustomers("find"), loadStatuses()]);
   resetForm();
   activateFindUI();
   setTimeout(calibrateSlider, 50);
