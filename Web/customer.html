@@ -26,12 +26,31 @@
                 background-color: #5b2e8a;
             }
 
+            /* ── Font sizes matched to dispatchOrder form ── */
+            h1.main-text {
+                font-size: 30px !important;
+            }
+
+            h4.main-text {
+                font-size: 20px !important;
+            }
+
             .form-label {
-                font-weight: bold;
+                font-weight: 700;
+                font-size: 16px;
+                color: #5b2e8a;
             }
 
             .div-form {
-                font-size: 18px;
+                font-size: 15px;
+            }
+
+            .form-control,
+            .form-select,
+            textarea.form-control {
+                font-size: 15px;
+                font-family: Arial, Helvetica, sans-serif;
+                color: #1f2937;
             }
 
             .toggle-container {
@@ -63,12 +82,63 @@
                 opacity: 0.8;
             }
 
-
             #fetch-id-wrapper {
                 position: relative;
                 margin-bottom: 2.5rem !important;
                 /* Retains clear whitespace parameters */
             }
+
+            /* ── Button colors matched to dispatchOrder form ── */
+            #action-btn {
+                background: linear-gradient(135deg, #d97706, #f59e0b) !important;
+                color: #fff !important;
+                border: none !important;
+                border-radius: 24px !important;
+                font-weight: 700 !important;
+                font-size: 15px !important;
+                padding: 11px 26px !important;
+                box-shadow: 0 3px 10px rgba(0,0,0,0.12) !important;
+                transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease !important;
+            }
+            #action-btn:hover { filter: brightness(1.08) !important; transform: translateY(-2px) !important; }
+
+            #previous-btn {
+                background: linear-gradient(135deg, #4f46e5, #6366f1) !important;
+                color: #fff !important;
+                border: none !important;
+                border-right: 1px solid rgba(255,255,255,0.25) !important;
+                border-radius: 24px 0 0 24px !important;
+                font-weight: 700 !important;
+                font-size: 15px !important;
+                box-shadow: none !important;
+                transition: filter 0.15s ease !important;
+            }
+            #previous-btn:hover { filter: brightness(1.1) !important; }
+
+            #next-btn {
+                background: linear-gradient(135deg, #0891b2, #22d3ee) !important;
+                color: #fff !important;
+                border: none !important;
+                border-radius: 0 24px 24px 0 !important;
+                font-weight: 700 !important;
+                font-size: 15px !important;
+                box-shadow: none !important;
+                transition: filter 0.15s ease !important;
+            }
+            #next-btn:hover { filter: brightness(1.1) !important; }
+
+            a.btn[href*="dashboard"] {
+                background: linear-gradient(135deg, #dc2626, #f87171) !important;
+                color: #fff !important;
+                border: none !important;
+                border-radius: 24px !important;
+                font-weight: 700 !important;
+                font-size: 15px !important;
+                padding: 11px 26px !important;
+                box-shadow: 0 3px 10px rgba(0,0,0,0.12) !important;
+                transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease !important;
+            }
+            a.btn[href*="dashboard"]:hover { filter: brightness(1.08) !important; transform: translateY(-2px) !important; }
 
             .custom-alert-box {
                 position: absolute;

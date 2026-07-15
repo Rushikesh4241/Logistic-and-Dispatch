@@ -34,7 +34,7 @@ body {
 }
 
 .container {
-  width: 100vw; 
+  width: 90vw; 
   margin: 0 auto; 
   background: #fff;
   border-radius: 14px;
@@ -100,6 +100,7 @@ body {
   width: 150px; 
   color: var(--purple);
   font-weight: 700;
+  font-size: 16px;
 }
 
 .field-inline {
@@ -114,6 +115,8 @@ body {
   border-radius: 8px;
   border: 1px solid rgba(95, 62, 128, 0.15);
   background: #fff;
+  font-size: 15px;
+  color: #1f2937;
 }
 
 .field-input.small {
