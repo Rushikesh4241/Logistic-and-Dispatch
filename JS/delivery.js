@@ -11,28 +11,36 @@ const findBtn = document.getElementById("find-btn");
 const newBtn = document.getElementById("new-btn");
 
 const API_BASE_URL = "http://localhost:3000/delivery";
+
 let findMode = true;
 
 function setFindMode(isFindMode) {
+
     findMode = isFindMode;
     findBtn.classList.toggle("active", findMode);
     newBtn.classList.toggle("active", !findMode);
+
     if (!findMode) {
         toggleFormMode(false);
     }
 }
 
 function toggleFormMode(isUpdateMode) {
+
     if (isUpdateMode) {
         registerBtn.classList.add("d-none");
         updateBtn.classList.remove("d-none");
+
     } else {
         registerBtn.classList.remove("d-none");
         updateBtn.classList.add("d-none");
     }
+
 }
 
+
 function clearFields() {
+
     deliveryId.value = "";
     orderId.value = "";
     deliveryDate.value = "";
@@ -40,9 +48,12 @@ function clearFields() {
     proofOfDelivery.value = "";
 }
 
+
 async function loadOrderIds() {
+
     try {
         const response = await fetch(`${API_BASE_URL}/orders`);
+
         const data = await response.json();
 
         if (!Array.isArray(data)) {
@@ -50,119 +61,172 @@ async function loadOrderIds() {
         }
 
         const currentValue = orderId.value;
+
         orderId.innerHTML = '<option value="">Select Order ID</option>';
 
         data.forEach((item) => {
+
             const opt = document.createElement("option");
+
             opt.value = item.ORDERID || item.orderId || item.ORDER_ID || item.order_id;
             opt.textContent = opt.value;
             orderId.appendChild(opt);
+
         });
+
 
         if (currentValue) {
             orderId.value = currentValue;
         }
+
     } catch (err) {
         console.error(err);
     }
+
 }
+
 
 async function getNextDeliveryId() {
     try {
         const response = await fetch(`${API_BASE_URL}/next-id`);
+
         const data = await response.json();
+
         return data.nextDeliveryId || "";
+
     } catch (err) {
+
         console.error(err);
+
         return "";
     }
 }
 
+
 deliveryId.addEventListener("input", async () => {
-    if (!findMode) return;
+
+    if (!findMode) {
+        return;
+    }
 
     const id = deliveryId.value.trim();
+
     if (!id) {
+
         clearFields();
+
         toggleFormMode(false);
+
         return;
     }
 
     await lookupDeliveryById();
 });
 
-// also support Enter and blur for faster form interaction
+
 deliveryId.addEventListener("keydown", async (event) => {
+
     if (findMode && event.key === "Enter") {
         event.preventDefault();
+
         await lookupDeliveryById();
     }
+
 });
 
+
 deliveryId.addEventListener("blur", async () => {
+
     if (findMode && deliveryId.value.trim()) {
         await lookupDeliveryById();
     }
+
 });
 
 async function lookupDeliveryById() {
+
     const id = deliveryId.value.trim();
+
     if (!id) {
+
         Swal.fire({ position: "center", icon: "error", title: "Please enter a Delivery ID to find", showConfirmButton: true });
         return;
     }
 
+
     try {
+
         const response = await fetch(`${API_BASE_URL}/${id}`);
+
         if (!response.ok) {
+
             Swal.fire({ position: "center", icon: "error", title: "No delivery found for that ID", showConfirmButton: true });
+
             return;
         }
+
         const data = await response.json();
+
         orderId.value = data.orderId || "";
         deliveryDate.value = data.deliveryDate ? data.deliveryDate.split("T")[0] : "";
         remarks.value = data.remarks || "";
         proofOfDelivery.value = data.proofOfDelivery || "";
+
         toggleFormMode(true);
+    
     } catch (err) {
         console.error(err);
     }
 }
 
-// Find button: switch to find mode and automatically lookup later
+
 if (findBtn) {
+
     findBtn.addEventListener("click", () => {
+
         setFindMode(true);
+
         if (deliveryId.value.trim()) {
             lookupDeliveryById();
         }
     });
 }
 
-// New button: prepare form for a new delivery
+
 if (newBtn) {
+
     newBtn.addEventListener("click", async () => {
         setFindMode(false);
+
         clearFields();
+
         const nextId = await getNextDeliveryId();
-        if (nextId) deliveryId.value = nextId;
+
+        if (nextId) {
+            deliveryId.value = nextId;
+        }
+
         toggleFormMode(false);
     });
 }
 
 registerBtn.addEventListener("click", async () => {
+
     if (!orderId.value) {
+
         Swal.fire({
             position: "center",
             icon: "error",
             title: "Please select an Order ID",
             showConfirmButton: true,
         });
+
         return;
     }
 
     try {
         let finalDeliveryId = deliveryId.value.trim();
+
         if (!finalDeliveryId) {
             finalDeliveryId = await getNextDeliveryId();
         }
@@ -194,9 +258,13 @@ registerBtn.addEventListener("click", async () => {
         });
 
         clearFields();
+
         toggleFormMode(false);
+
     } catch (err) {
+
         console.error(err);
+
         Swal.fire({
             position: "center",
             icon: "error",
@@ -205,10 +273,14 @@ registerBtn.addEventListener("click", async () => {
             timer: 1500,
         });
     }
+
 });
 
+
 updateBtn.addEventListener("click", async () => {
+
     if (!deliveryId.value.trim()) {
+
         Swal.fire({
             position: "center",
             icon: "error",
@@ -219,6 +291,7 @@ updateBtn.addEventListener("click", async () => {
     }
 
     try {
+
         const response = await fetch(`${API_BASE_URL}/${deliveryId.value.trim()}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -233,6 +306,7 @@ updateBtn.addEventListener("click", async () => {
         const data = await response.json();
 
         if (!response.ok) {
+
             throw new Error(data.message || "Unable to update delivery");
         }
 
@@ -243,8 +317,11 @@ updateBtn.addEventListener("click", async () => {
             showConfirmButton: false,
             timer: 1500,
         });
+
     } catch (err) {
+
         console.error(err);
+
         Swal.fire({
             position: "center",
             icon: "error",
@@ -255,14 +332,21 @@ updateBtn.addEventListener("click", async () => {
     }
 });
 
+
 document.getElementById("next-btn").addEventListener("click", async () => {
+
     let id = deliveryId.value.trim();
-    if (!id) id = 0;
+
+    if (!id) {
+        id = 0;
+    }
 
     try {
+
         const response = await fetch(`${API_BASE_URL}/next/${id}`);
 
         if (!response.ok) {
+
             Swal.fire({
                 position: "center",
                 icon: "info",
@@ -274,25 +358,35 @@ document.getElementById("next-btn").addEventListener("click", async () => {
         }
 
         const data = await response.json();
+
         deliveryId.value = data.deliveryId;
         orderId.value = data.orderId || "";
         deliveryDate.value = data.deliveryDate ? data.deliveryDate.split("T")[0] : "";
         remarks.value = data.remarks || "";
         proofOfDelivery.value = data.proofOfDelivery || "";
+
+
         toggleFormMode(true);
+
     } catch (err) {
         console.error(err);
     }
+
 });
 
 document.getElementById("previous-btn").addEventListener("click", async () => {
+
     let id = deliveryId.value.trim();
-    if (!id) return;
+
+    if (!id) {
+        return;
+    }
 
     try {
         const response = await fetch(`${API_BASE_URL}/previous/${id}`);
 
         if (!response.ok) {
+
             Swal.fire({
                 position: "center",
                 icon: "info",
@@ -303,13 +397,17 @@ document.getElementById("previous-btn").addEventListener("click", async () => {
             return;
         }
 
+
         const data = await response.json();
+
         deliveryId.value = data.deliveryId;
         orderId.value = data.orderId || "";
         deliveryDate.value = data.deliveryDate ? data.deliveryDate.split("T")[0] : "";
         remarks.value = data.remarks || "";
         proofOfDelivery.value = data.proofOfDelivery || "";
+
         toggleFormMode(true);
+
     } catch (err) {
         console.error(err);
     }
@@ -318,10 +416,9 @@ document.getElementById("previous-btn").addEventListener("click", async () => {
 loadOrderIds();
 toggleFormMode(false);
 
-// initialize bootstrap popovers for any info buttons (click/focus)
 try {
     const popoverTriggerList = Array.from(document.querySelectorAll('[data-bs-toggle="popover"]'));
     popoverTriggerList.forEach((el) => new bootstrap.Popover(el));
+
 } catch (e) {
-    // ignore if bootstrap isn't available
 }

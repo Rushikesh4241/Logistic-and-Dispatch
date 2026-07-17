@@ -2,28 +2,42 @@ const express = require("express");
 const router = express.Router();
 const getConnection = require("../db");
 
-
+//new id
 router.get("/new-id", async (req, res) => {
+
     let connection;
+
     try {
+
         connection = await getConnection();
+
         const result = await connection.execute(
             `SELECT NVL(MAX(DRIVERID), 0) + 1 FROM DRIVER`
         );
+
         res.json({ nextId: result.rows[0][0] });
+
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Error calculating sequence assignment parameters" });
+
     } finally {
-        if (connection) await connection.close();
+        if (connection) {
+            await connection.close();
+        }
     }
+
 });
 
-// GET NEXT RECORD
+// next-id
 router.get("/next/:id", async (req, res) => {
+
     let connection;
+
     try {
+
         connection = await getConnection();
+
         const result = await connection.execute(
             `SELECT DRIVERID, DRIVERNAME, PHONE, LICENSENUMBER FROM DRIVER WHERE 
              DRIVERID = (SELECT MIN(DRIVERID) FROM DRIVER WHERE DRIVERID > :1)`,
@@ -35,25 +49,34 @@ router.get("/next/:id", async (req, res) => {
         }
 
         const row = result.rows[0];
+
         res.json({
             driverId: row[0],
             driverName: row[1],
             driverPhone: row[2],
             licenseNumber: row[3]
         });
+
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Record lookup failed" });
+
     } finally {
-        if (connection) await connection.close();
+        if (connection) {
+            await connection.close();
+        }
     }
 });
 
-// GET PREVIOUS RECORD
+// prev-id
 router.get("/previous/:id", async (req, res) => {
+
     let connection;
+
     try {
+
         connection = await getConnection();
+
         const result = await connection.execute(
             `SELECT DRIVERID, DRIVERNAME, PHONE, LICENSENUMBER FROM DRIVER WHERE
              DRIVERID = (SELECT MAX(DRIVERID) FROM DRIVER WHERE DRIVERID < :1)`,
@@ -64,27 +87,37 @@ router.get("/previous/:id", async (req, res) => {
             return res.status(404).json({ success: false, message: "No more records found" });
         }
 
+
         const row = result.rows[0];
+
         res.json({
             driverId: row[0],
             driverName: row[1],
             driverPhone: row[2],
             licenseNumber: row[3]
         });
+
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Record lookup failed" });
+
     } finally {
-        if (connection) await connection.close();
+        if (connection) {
+            await connection.close();
+        }
     }
+
 });
 
-
-// GET BY INDIVIDUAL CUSTOMER ID
+// fetch id
 router.get("/:id", async (req, res) => {
+
     let connection;
+
     try {
+
         connection = await getConnection();
+
         const result = await connection.execute(
             `SELECT DRIVERNAME, PHONE, LICENSENUMBER FROM DRIVER WHERE DRIVERID = :id`,
             [req.params.id]
@@ -95,34 +128,44 @@ router.get("/:id", async (req, res) => {
         }
 
         const row = result.rows[0];
+
         res.json({
             driverName: row[0],
             driverPhone: row[1],
             licenseNumber: row[2]
         });
+
     } catch (err) {
         console.error(err);
+
         res.status(500).json({ message: "Record lookup failed" });
+
     } finally {
-        if (connection) await connection.close();
+        if (connection) {
+            await connection.close();
+        }
     }
+
 });
 
-// POST (INSERT NEW CUSTOMER)
-// POST (INSERT NEW DRIVER)
+
+//save
 router.post("/", async (req, res) => {
+
     let connection;
+
     try {
+
         const { driverName, driverPhone, licenseNumber } = req.body;
+
         connection = await getConnection();
 
-        // 1. Get the exact next ID
         const maxResult = await connection.execute(
             `SELECT NVL(MAX(DRIVERID), 0) + 1 FROM DRIVER`
         );
+
         const nextId = maxResult.rows[0][0];
 
-        // 2. Explicitly insert DRIVERID
         await connection.execute(
             `INSERT INTO DRIVER(DRIVERID, DRIVERNAME, PHONE, LICENSENUMBER) VALUES (:1, :2, :3, :4)`, 
             [nextId, driverName, driverPhone, licenseNumber],
@@ -130,32 +173,48 @@ router.post("/", async (req, res) => {
         );
 
         res.json({ success: true, message: `Driver Added Successfully with ID ${nextId}` });
+
     } catch(err) {
         console.error(err);
         res.status(500).json({ success: false, message: "An error occurred during creation" });
+
     } finally {
-        if (connection) await connection.close();
+        if (connection) {
+            await connection.close();
+        }
     }
+
 });
 
-// PUT (UPDATE EXISTING CUSTOMER)
+
+//update
 router.put("/:id", async (req, res) => {
+
     const { driverName, driverPhone, licenseNumber } = req.body;
+
     let connection;
+
     try {
         connection = await getConnection();
+
         await connection.execute(
             `UPDATE DRIVER SET DRIVERNAME = :1, PHONE = :2, LICENSENUMBER = :3 WHERE DRIVERID = :4`,
             [driverName, driverPhone, licenseNumber, req.params.id],
             { autoCommit: true }
         );
+
         res.json({ success: true, message: `Driver updated with ID ${req.params.id}` });
+
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Record update transaction declined" });
+
     } finally {
-        if (connection) await connection.close();
+        if (connection) {
+            await connection.close();
+        }
     }
 });
+
 
 module.exports = router;

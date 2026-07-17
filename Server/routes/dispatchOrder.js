@@ -2,51 +2,73 @@ const express = require("express");
 const router = express.Router();
 const getConnection = require("../db");
 
-
-// ── Get next available Order ID (mirrors vehicle next-id) ──
+//next id
 router.get("/next-id", async (req, res) => {
+
     let connection;
+
     try {
+
         connection = await getConnection();
+
         const result = await connection.execute(
             `SELECT NVL(MAX(ORDERID), 0) + 1 FROM DISPATCHORDER`
         );
+
         const nextId = result.rows && result.rows[0] ? result.rows[0][0] : 1;
+
         res.json({ nextId });
+
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Unable to get next Order ID" });
+
     } finally {
-        if (connection) await connection.close();
+        if (connection) {
+            await connection.close();
+        }
     }
+
 });
 
 
-// ── Load DispatchOrderStatus values from LOV table ──
 router.get("/statuses", async (req, res) => {
+
     let connection;
+
     try {
+
         connection = await getConnection();
+
         const result = await connection.execute(
             `SELECT LOV_VALUE FROM LOV_Master
               WHERE LOV_TYPE = 'DispatchOrderStatus'
                 AND STATUS   = 'ACTIVE'
               ORDER BY LOV_ID`
         );
+
         const statuses = (result.rows || []).map(row => row[0]);
         res.json(statuses);
+
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Unable to fetch dispatch order statuses" });
+
     } finally {
-        if (connection) await connection.close();
+        if (connection) {
+            await connection.close();
+        }
     }
+
 });
 
 
 router.get("/customers", async (req, res) => {
+
     let connection;
+
     try {
+
         connection = await getConnection();
 
         const result = await connection.execute(
@@ -65,28 +87,28 @@ router.get("/customers", async (req, res) => {
         return res.status(500).json({ message: "Error Loading Customers" });
     } 
     finally {
-        if (connection) await connection.close();
+        if (connection) {
+            await connection.close();
+        }
     }
 });
 
 
-// ── Customers NOT yet in DispatchOrder (for New & Update modes) ──
-// Optional query param: ?excludeOrderId=N
-//   Without it  → New mode   : excludes ALL customers already in DISPATCHORDER
-//   With it     → Update mode: excludes customers in OTHER orders, but keeps
-//                              the current order's customer selectable
 router.get("/customers/available", async (req, res) => {
+
     let connection;
+
     const excludeOrderId = req.query.excludeOrderId ? Number(req.query.excludeOrderId) : null;
 
     try {
+
         connection = await getConnection();
 
-        let sql, binds;
+        let sql;
+        let binds;
 
         if (excludeOrderId) {
-            // Update mode: hide customers that belong to ANOTHER dispatch order
-            // (the current order's customer is intentionally still shown)
+
             sql = `SELECT CUSTOMERID, CUSTOMERNAME
                      FROM CUSTOMER
                     WHERE CUSTOMERID NOT IN (
@@ -96,9 +118,11 @@ router.get("/customers/available", async (req, res) => {
                              AND ORDERID != :1
                     )
                     ORDER BY CUSTOMERID`;
+
             binds = [excludeOrderId];
+
         } else {
-            // New mode: hide every customer that already has ANY dispatch order
+
             sql = `SELECT CUSTOMERID, CUSTOMERNAME
                      FROM CUSTOMER
                     WHERE CUSTOMERID NOT IN (
@@ -107,76 +131,106 @@ router.get("/customers/available", async (req, res) => {
                            WHERE CUSTOMERID IS NOT NULL
                     )
                     ORDER BY CUSTOMERID`;
+
             binds = [];
         }
 
         const result = await connection.execute(sql, binds);
+
         const customers = (result.rows || []).map(row => ({
             customerId  : row[0],
             customerName: row[1]
         }));
 
         res.json(customers);
+
     } catch (err) {
         console.error(err);
         return res.status(500).json({ message: "Error loading available customers" });
+
     } finally {
-        if (connection) await connection.close();
+        if (connection) {
+            await connection.close();
+        }
     }
 });
 
 
-// ── Get next record ── (must be before /:id)
 router.get("/next/:id", async (req, res) => {
+
     let connection;
+
     try {
+
         connection = await getConnection();
+
         const result = await connection.execute(
             `SELECT ORDERID, CUSTOMERID, DISPATCHDATE, SOURCE, DESTINATION, STATUS FROM DISPATCHORDER WHERE ORDERID = (SELECT MIN(ORDERID) FROM DISPATCHORDER WHERE ORDERID > :1)`,
             [req.params.id]
         );
+
         if (!result.rows || result.rows.length === 0) {
             return res.status(404).json({ message: "No more sequential records found" });
         }
+
         const row = result.rows[0];
         res.json({ orderId: row[0], customerId: row[1], dispatchDate: row[2], source: row[3], destination: row[4], status: row[5] });
+
     } catch (err) {
         console.error(err);
         return res.status(500).json({ message: "Pagination engine failure" });
+
     } finally {
-        if (connection) await connection.close();
+        if (connection) {
+            await connection.close();
+        }
     }
+
 });
 
 
-// ── Get previous record ──
 router.get("/previous/:id", async (req, res) => {
+
     let connection;
+
     try {
+
         connection = await getConnection();
+
         const result = await connection.execute(
             `SELECT ORDERID, CUSTOMERID, DISPATCHDATE, SOURCE, DESTINATION, STATUS FROM DISPATCHORDER WHERE ORDERID = (SELECT MAX(ORDERID) FROM DISPATCHORDER WHERE ORDERID < :1)`,
             [req.params.id]
         );
+
         if (!result.rows || result.rows.length === 0) {
             return res.status(404).json({ message: "No prior sequential records found" });
         }
+
         const row = result.rows[0];
+
         res.json({ orderId: row[0], customerId: row[1], dispatchDate: row[2], source: row[3], destination: row[4], status: row[5] });
+
     } catch (err) {
         console.error(err);
         return res.status(500).json({ message: "Pagination engine failure" });
+
     } finally {
-        if (connection) await connection.close();
+        if (connection) {
+            await connection.close();
+        }
     }
+
 });
 
 
-// ── Get by ID ──
 router.get("/:id", async (req, res) => {
+
     let connection;
+
     try {
+
         connection = await getConnection();
+
         const result = await connection.execute(
             `SELECT ORDERID, CUSTOMERID, DISPATCHDATE, SOURCE, DESTINATION, STATUS FROM DISPATCHORDER WHERE ORDERID = :1`,
             [req.params.id]
@@ -187,6 +241,7 @@ router.get("/:id", async (req, res) => {
         }
 
         const row = result.rows[0];
+
         res.json({
             orderId: row[0],
             customerId: row[1],
@@ -195,23 +250,30 @@ router.get("/:id", async (req, res) => {
             destination: row[4],
             status: row[5]
         });
+
     } catch (err) {
         console.error(err);
         return res.status(500).json({ message: "Database connection failure" });
+
     } finally {
-        if (connection) await connection.close();
+        if (connection) {
+            await connection.close();
+        }
     }
 });
 
 
+//save
 router.post("/", async (req, res) => {
+
     let connection;
+
     const { customerId, source, destination, dispatchDate, status } = req.body;
 
     try {
+
         connection = await getConnection();
 
-        
         const customerCheck = await connection.execute(
             `SELECT CUSTOMERID FROM CUSTOMER WHERE CUSTOMERID = :1`,
             [customerId]
@@ -224,7 +286,6 @@ router.post("/", async (req, res) => {
             });
         }
 
-        
         if (!source || !destination) {
             return res.status(400).json({ 
                 success: false, 
@@ -232,14 +293,15 @@ router.post("/", async (req, res) => {
             });
         }
 
-        
         if (!dispatchDate || dispatchDate === "") {
+
             await connection.execute(
                 `INSERT INTO DISPATCHORDER (CUSTOMERID, SOURCE, DESTINATION, STATUS) VALUES (:1, :2, :3, :4)`,
                 [customerId, source, destination, status || 'Pending'],
                 { autoCommit: true }
             );
         } else {
+
             await connection.execute(
                 `INSERT INTO DISPATCHORDER (CUSTOMERID, SOURCE, DESTINATION, DISPATCHDATE, STATUS) VALUES (:1, :2, :3, TO_DATE(:4, 'YYYY-MM-DD'), :5)`,
                 [customerId, source, destination, dispatchDate, status || 'Pending'],
@@ -251,26 +313,34 @@ router.post("/", async (req, res) => {
             success: true, 
             message: "Dispatch Order created successfully" 
         });
+
     } catch (err) {
         console.error(err);
+
         return res.status(500).json({ 
             success: false, 
             message: "Database creation failed" 
         });
+
     } finally {
-        if (connection) await connection.close();
+        if (connection) {
+            await connection.close();
+        }
     }
+
 });
 
-
+//update
 router.put("/:id", async (req, res) => {
+
     let connection;
+
     const { customerId, source, destination, dispatchDate, status } = req.body;
 
     try {
+
         connection = await getConnection();
 
-        
         const customerCheck = await connection.execute(
             `SELECT CUSTOMERID FROM CUSTOMER WHERE CUSTOMERID = :1`,
             [customerId]
@@ -283,7 +353,6 @@ router.put("/:id", async (req, res) => {
             });
         }
 
-        
         if (!source || !destination) {
             return res.status(400).json({ 
                 success: false, 
@@ -291,14 +360,15 @@ router.put("/:id", async (req, res) => {
             });
         }
 
-        
         if (!dispatchDate || dispatchDate === "") {
+
             await connection.execute(
                 `UPDATE DISPATCHORDER SET CUSTOMERID = :1, SOURCE = :2, DESTINATION = :3, STATUS = :4 WHERE ORDERID = :5`,
                 [customerId, source, destination, status || 'Pending', req.params.id],
                 { autoCommit: true }
             );
         } else {
+
             await connection.execute(
                 `UPDATE DISPATCHORDER SET CUSTOMERID = :1, SOURCE = :2, DESTINATION = :3, DISPATCHDATE = TO_DATE(:4, 'YYYY-MM-DD'), STATUS = :5 WHERE ORDERID = :6`,
                 [customerId, source, destination, dispatchDate, status || 'Pending', req.params.id],
@@ -310,15 +380,21 @@ router.put("/:id", async (req, res) => {
             success: true, 
             message: "Dispatch Order updated successfully" 
         });
+
     } catch (err) {
         console.error(err);
+
         return res.status(500).json({ 
             success: false, 
             message: "Database update failed" 
         });
+
     } finally {
-        if (connection) await connection.close();
+        if (connection) {
+            await connection.close();
+        }
     }
 });
+
 
 module.exports = router;

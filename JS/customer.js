@@ -17,8 +17,9 @@ let originalSnapshot = { name: "", address: "", phone: "" };
 let idExistsInDB = false; 
 let isNavigating = false;
 
-// ── State Capture Engines ──────────────────────────────────────
+
 function captureSnapshot() {
+
     originalSnapshot = {
         name: customerName.value.trim(),
         address: customerAddress.value.trim(),
@@ -27,6 +28,7 @@ function captureSnapshot() {
 }
 
 function dataIsMutated() {
+
     return (
         customerName.value.trim() !== originalSnapshot.name ||
         customerAddress.value.trim() !== originalSnapshot.address ||
@@ -35,24 +37,28 @@ function dataIsMutated() {
 }
 
 function isFormBlank() {
+
     return !customerName.value.trim() && !customerAddress.value.trim() && !customerPhone.value.trim();
 }
 
 function clearFields() {
+
     customerName.value = "";
     customerAddress.value = "";
     customerPhone.value = "";
 }
 
+
 function resetInlineFeedback() {
+
     dbFeedback.innerText = "";
     dbFeedback.style.display = "none";
     phoneFeedback.innerText = "";
     phoneFeedback.style.display = "none";
 }
 
-// Auto-dismiss short informational alerts
 function showToast(type, message) {
+
     return Swal.fire({
         position: "center",
         icon: type,
@@ -62,13 +68,21 @@ function showToast(type, message) {
     });
 }
 
-// ── Navigation Guardrail Interceptor ───────────────────────────
 async function guardNavigation(callback) {
-    if (isNavigating) return;
-    if (!dataIsMutated()) { await callback(); return; }
+
+    if (isNavigating) {
+        return;
+    }
+
+    if (!dataIsMutated()) {
+        await callback();
+        return;
+    }
 
     isNavigating = true;
+
     try {
+
         const result = await Swal.fire({
             title: "Unsaved Changes",
             text: "You have unsaved changes on the form. How would you like to proceed?",
@@ -85,143 +99,205 @@ async function guardNavigation(callback) {
 
         if (result.isConfirmed) {
             const success = await commitFormAction(true);
-            if (!success) return;
+
+            if (!success) {
+                return;
+            }
             await callback();
+
         } else if (result.isDenied) {
             captureSnapshot();
             await callback();
         }
+
     } finally {
         isNavigating = false;
     }
 }
 
-// ── Mode Switcher Configuration Layouts ────────────────────────
 async function setFormMode(mode) {
+
     activeMode = mode;
+
     resetInlineFeedback();
-    
+
     if (mode === "NEW") {
+
         toggleNew.classList.add("active");
         toggleFind.classList.remove("active");
         nextBtn.classList.add("d-none");
 
         actionBtn.innerText = "Save";
         actionBtn.className = "btn btn-success rounded-3 px-4 fw-bold";
-        
+
         customerId.disabled = true; 
         clearFields();
 
         try {
             const response = await fetch(`${API_BASE_URL}/new-id`);
+
             if (response.ok) {
                 const data = await response.json();
+
                 customerId.value = data.nextId;
             }
+
         } catch (err) {
             console.error("Error retrieving auto-increment sequences:", err);
         }
+
         idExistsInDB = false; 
+
         captureSnapshot();
+
     } else {
+
         toggleFind.classList.add("active");
         toggleNew.classList.remove("active");
         nextBtn.classList.remove("d-none");
 
         actionBtn.innerText = "Update";
         actionBtn.className = "btn btn-warning rounded-3 px-4 fw-bold text-dark";
-        
+
         customerId.disabled = false;
         customerId.value = "";
         clearFields();
+
         idExistsInDB = false;
         captureSnapshot();
     }
 }
 
+
 toggleFind.addEventListener("click", async () => {
-    if (activeMode === "FIND") return;
+
+    if (activeMode === "FIND") {
+        return;
+    }
     await guardNavigation(() => setFormMode("FIND"));
 });
 
+
 toggleNew.addEventListener("click", async () => {
-    if (activeMode === "NEW") return;
+
+    if (activeMode === "NEW") {
+        return;
+    }
     await guardNavigation(() => setFormMode("NEW"));
 });
 
-// Character blocking input filter for digits element
+
 customerPhone.addEventListener("input", () => {
+
     const rawValue = customerPhone.value;
+
     if (/[^0-9]/.test(rawValue)) {
+
         customerPhone.value = rawValue.replace(/[^0-9]/g, "");
         phoneFeedback.innerText = "Please enter digits only.";
         phoneFeedback.style.display = "block";
+
     } else {
+
         phoneFeedback.innerText = "";
         phoneFeedback.style.display = "none";
     }
 });
 
-// Live record retrieval listener
+
 customerId.addEventListener("input", async () => {
-    if (activeMode === "NEW") return; 
+
+    if (activeMode === "NEW") {
+        return; 
+    }
 
     const id = customerId.value.trim();
-    if (!id) { clearFields(); captureSnapshot(); resetInlineFeedback(); idExistsInDB = false; return; }
+
+    if (!id) {
+        clearFields();
+        captureSnapshot();
+        resetInlineFeedback();
+        idExistsInDB = false;
+
+        return;
+    }
 
     try {
+
         const response = await fetch(`${API_BASE_URL}/${id}`);
-        
+
         if (!response.ok) { 
+
             clearFields(); 
             captureSnapshot(); 
             dbFeedback.innerText = `Customer ID "${id}" does not exist.`;
             dbFeedback.style.display = "block";
             idExistsInDB = false;
+
             return; 
         }
 
         resetInlineFeedback();
+
         const data = await response.json();
+
         customerName.value = data.customerName || "";
         customerAddress.value = data.customerAddress || "";
         customerPhone.value = data.customerPhone || "";
+
         idExistsInDB = true; 
+
         captureSnapshot();
+
     } catch (err) {
         console.error(err);
     }
+
 });
 
-// ── Primary Combined Validation & Save/Update Action Delegator ──
+
 async function commitFormAction(silent = false) {
+
     if (!customerName.value.trim()) {
         Swal.fire({ icon: "error", title: "Name Required", text: "Full Name field is required to submit this record.", confirmButtonColor: "#5b2e8a" });
+
         return false;
     }
 
     if (customerPhone.value.trim() !== "" && customerPhone.value.trim().length !== 10) {
         Swal.fire({ icon: "error", title: "Invalid Input", text: "Phone records must contain exactly 10 digits.", confirmButtonColor: "#5b2e8a" });
+
         return false;
     }
 
-    // UPDATE RECORD ROUTE
     if (activeMode === "FIND") {
         const id = customerId.value.trim();
-        if (!id) { Swal.fire({ icon: "error", title: "ID Missing", text: "Please enter or search for a valid Customer ID first.", confirmButtonColor: "#5b2e8a" }); return false; }
+
+        if (!id) {
+            Swal.fire({ icon: "error", title: "ID Missing", text: "Please enter or search for a valid Customer ID first.", confirmButtonColor: "#5b2e8a" });
+
+            return false;
+        }
 
         try {
             const checkResp = await fetch(`${API_BASE_URL}/${id}`);
+
             if (!checkResp.ok) {
                 Swal.fire({ icon: "error", title: "Operation Denied", text: "Cannot update. This Customer ID does not exist in the system.", confirmButtonColor: "#5b2e8a" });
+
                 return false;
             }
-        } catch(e) { return false; }
+
+        } catch(e) {
+            return false;
+        }
 
         if (!dataIsMutated()) {
             showToast("info", "No changes detected. Form matches database record.");
+
             return true;
         }
+
 
         if (!silent) {
             const confirmBox = await Swal.fire({
@@ -234,10 +310,14 @@ async function commitFormAction(silent = false) {
                 confirmButtonColor: "#d97706",
                 cancelButtonColor: "#6b7280"
             });
-            if (!confirmBox.isConfirmed) return false;
+
+            if (!confirmBox.isConfirmed) {
+                return false;
+            }
         }
 
         try {
+
             const response = await fetch(`${API_BASE_URL}/${id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -247,15 +327,25 @@ async function commitFormAction(silent = false) {
                     customerPhone: customerPhone.value.trim()
                 })
             });
-            const data = await response.json();
-            await Swal.fire({ position: "center", icon: "success", title: "Updated!", text: data.message || "Customer records modified successfully.", showConfirmButton: false, timer: 1800 });
-            captureSnapshot();
-            return true;
-        } catch (err) { console.error(err); return false; }
 
-    // SAVE NEW RECORD ROUTE
+            const data = await response.json();
+
+            await Swal.fire({ position: "center", icon: "success", title: "Updated!", text: data.message || "Customer records modified successfully.", showConfirmButton: false, timer: 1800 });
+
+            captureSnapshot();
+
+            return true;
+
+        } catch (err) {
+            console.error(err);
+            return false;
+        }
+
+
     } else {
+
         try {
+
             const response = await fetch(API_BASE_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -265,66 +355,102 @@ async function commitFormAction(silent = false) {
                     customerPhone: customerPhone.value.trim()
                 })
             });
+
             const data = await response.json();
+
             await showToast("success", data.message || "New customer registered successfully.");
+
             clearFields();
+
             await setFormMode("FIND");
+
             return true;
-        } catch (err) { console.error(err); return false; }
+
+        } catch (err) {
+            console.error(err);
+            return false;
+        }
     }
 }
 
-actionBtn.addEventListener("click", async () => { await commitFormAction(false); });
+actionBtn.addEventListener("click", async () => {
+    await commitFormAction(false);
+});
 
-// ── Pagination Module Interactors ──────────────────────────────
+
 nextBtn.addEventListener("click", async () => {
+
     await guardNavigation(async () => {
+
         let id = customerId.value.trim();
-        if (!id) id = 0;
+
+        if (!id) {
+            id = 0;
+        }
 
         try {
             const response = await fetch(`${API_BASE_URL}/next/${id}`);
+
             if (!response.ok) { 
                 await Swal.fire({ icon: "warning", title: "End of List", html: "<p>You have reached the <b>last entry</b>.<br>There are no subsequent records to display.</p>", confirmButtonText: "OK", confirmButtonColor: "#4f46e5" }); 
                 return; 
             }
 
             const data = await response.json();
+
             await setFormMode("FIND"); 
+
             customerId.value = data.customerId;
             customerName.value = data.customerName || "";
             customerAddress.value = data.customerAddress || "";
             customerPhone.value = data.customerPhone || "";
+
             idExistsInDB = true;
+
             captureSnapshot();
-        } catch (err) { console.error(err); }
+
+        } catch (err) {
+            console.error(err);
+        }
     });
 });
 
+
 document.getElementById("previous-btn").addEventListener("click", async () => {
+
     let id = customerId.value.trim();
-    
+
     if (!id && activeMode === "FIND") {
+
         await Swal.fire({ icon: "info", title: "No Record Loaded", text: "Please look up or load an active entry sequence first before navigating.", confirmButtonText: "OK", confirmButtonColor: "#4f46e5" });
         return;
     }
 
     await guardNavigation(async () => {
+
         try {
             const response = await fetch(`${API_BASE_URL}/previous/${id}`);
+
             if (!response.ok) { 
                 await Swal.fire({ icon: "warning", title: "Beginning of List", html: "<p>You are already at the <b>first entry</b>.<br>There is no prior record to display.</p>", confirmButtonText: "OK", confirmButtonColor: "#4f46e5" }); 
                 return; 
             }
 
             const data = await response.json();
+
             await setFormMode("FIND"); 
+
             customerId.value = data.customerId;
             customerName.value = data.customerName || "";
             customerAddress.value = data.customerAddress || "";
             customerPhone.value = data.customerPhone || "";
+
             idExistsInDB = true;
+
             captureSnapshot();
-        } catch (err) { console.error(err); }
+
+        } catch (err) {
+            console.error(err);
+        }
     });
 });
